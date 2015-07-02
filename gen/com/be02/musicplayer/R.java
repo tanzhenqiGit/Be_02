@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.bjlz.musicplayer;
+package com.be02.musicplayer;
 
 public final class R {
     public static final class attr {
@@ -134,7 +134,7 @@ public final class R {
         public static final int zhengzai_n=0x7f020065;
     }
     public static final class id {
-        public static final int action_settings=0x7f080011;
+        public static final int action_settings=0x7f080013;
         public static final int main_album_name=0x7f080006;
         public static final int main_audio_cycle_mode=0x7f080010;
         public static final int main_audio_next=0x7f08000f;
@@ -152,6 +152,8 @@ public final class R {
         public static final int main_song_name=0x7f080004;
         public static final int main_start_time_txt=0x7f080009;
         public static final int main_total_time_txt=0x7f08000b;
+        public static final int music_contain=0x7f080012;
+        public static final int music_list_view=0x7f080011;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
