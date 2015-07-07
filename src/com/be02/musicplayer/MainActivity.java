@@ -21,14 +21,12 @@ public class MainActivity extends Activity {
 
     @Override
 	protected void onDestroy() {
-		// TODO 自动生成的方法存根
 		super.onDestroy();
 	}
 
 
 	@Override
 	protected void onPause() {
-		// TODO 自动生成的方法存根
 		super.onPause();
 	}
 
@@ -83,15 +81,30 @@ public class MainActivity extends Activity {
     	}
     	mFavoriteImg = (ImageView) findViewById(R.id.main_favorite_image);
     	mSongName = (TextView) findViewById(R.id.main_song_name);
+    	if (mSongName != null) {
+    		
+    	}
     	mSingerName = (TextView) findViewById(R.id.main_singer_name);
+    	if (mSingerName != null) {
+    		
+    	}
     	mAlbumName = (TextView) findViewById(R.id.main_album_name);
+    	if (mAlbumName != null) {
+    		
+    	}
     	mStartTime = (TextView) findViewById(R.id.main_start_time_txt);
+    	if (mStartTime != null) {
+    		
+    	}
     	mTotleTime = (TextView) findViewById(R.id.main_total_time_txt);
+    	if (mTotleTime != null) {
+    		
+    	}
     }
     
     private TextView mSongName, mSingerName, mAlbumName;
     private TextView mStartTime, mTotleTime;
-    private ImageView mFavoriteImg;
+    ImageView mFavoriteImg;
     private LinearLayout mMainReturn, mMainList, mFavorite;
     private LinearLayout mAudioSetting, mAudioPrevious, mAudioPlay, mAudioPlayNext,mAudioCycleMode;
     private View.OnClickListener mListener = new View.OnClickListener() {
