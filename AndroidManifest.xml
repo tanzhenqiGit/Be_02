@@ -27,8 +27,13 @@
         <activity 
             android:name="com.be02.musicplayer.MusicListActivity"
             android:launchMode="singleTask"
-            
             />
+        <service android:name="com.be02.service.MusicService" 
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.be02.service.MusicService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

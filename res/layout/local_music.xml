@@ -14,7 +14,7 @@
         <ImageView
             android:id="@+id/local_music_song_list_img"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="2"
             android:contentDescription="@string/default_image"
             android:scaleType="fitXY"
@@ -23,8 +23,8 @@
 
         <ImageView
             android:id="@+id/local_music_artist_list_img"
+            android:layout_height="match_parent"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="2"
             android:contentDescription="@string/default_image"
             android:scaleType="fitXY"
@@ -32,8 +32,8 @@
 
         <ImageView
             android:id="@+id/local_music_album_list_img"
+            android:layout_height="match_parent"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="2"
             android:contentDescription="@string/default_image"
             android:scaleType="fitXY"
@@ -42,7 +42,7 @@
         <ImageView
             android:id="@+id/local_music_scan_img"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:contentDescription="@string/default_image"
             android:scaleType="fitXY"

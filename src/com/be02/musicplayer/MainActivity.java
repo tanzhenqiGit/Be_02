@@ -1,8 +1,15 @@
 package com.be02.musicplayer;
 
+import com.be02.aidl.IMusicService;
+import com.be02.data.MusicCmd;
+import com.be02.data.MusicLog;
+
 import android.os.Bundle;
+import android.os.IBinder;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -16,6 +23,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initialize();
+        startAndBindService();
     }
 
 
@@ -102,7 +110,21 @@ public class MainActivity extends Activity {
     	}
     }
     
+    private void startAndBindService()
+    {
+    	String actionName = "com.be02.service.MusicService";
+    	Intent intentStart = new Intent();
+    	intentStart.setAction(actionName);
+    	intentStart.putExtra(MusicCmd.KEY, MusicCmd.PLAY);
+    	startService(intentStart);
+    	
+    	Intent intentBind = new Intent(actionName);
+    	bindService(intentBind, mConnection, 0);
+    }
+    
+    
     private TextView mSongName, mSingerName, mAlbumName;
+    private final String SUB_TAG = MainActivity.class.toString() + " ";
     private TextView mStartTime, mTotleTime;
     ImageView mFavoriteImg;
     private LinearLayout mMainReturn, mMainList, mFavorite;
@@ -138,6 +160,22 @@ public class MainActivity extends Activity {
 				
 				break;
 			}
+		}
+	};
+	
+	private IMusicService mServiceProxy;
+	private ServiceConnection mConnection = new ServiceConnection() {
+		
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			MusicLog.d(SUB_TAG + "onServiceDisconnected" + "name:" + name.toString());
+			
+		}
+		
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder binder) {
+			MusicLog.d(SUB_TAG + "onServiceConnected name=" + name);
+			mServiceProxy = IMusicService.Stub.asInterface(binder);
 		}
 	};
 }
