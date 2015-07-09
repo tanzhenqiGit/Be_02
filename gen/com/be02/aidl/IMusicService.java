@@ -74,6 +74,17 @@ reply.writeNoException();
 reply.writeInt(_result);
 return true;
 }
+case TRANSACTION_getMusicList:
+{
+data.enforceInterface(DESCRIPTOR);
+java.util.List<com.be02.aidl.MusicItem> _arg0;
+_arg0 = new java.util.ArrayList<com.be02.aidl.MusicItem>();
+int _result = this.getMusicList(_arg0);
+reply.writeNoException();
+reply.writeInt(_result);
+reply.writeTypedList(_arg0);
+return true;
+}
 }
 return super.onTransact(code, data, reply, flags);
 }
@@ -160,14 +171,34 @@ _data.recycle();
 }
 return _result;
 }
+@Override public int getMusicList(java.util.List<com.be02.aidl.MusicItem> list) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_getMusicList, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+_reply.readTypedList(list, com.be02.aidl.MusicItem.CREATOR);
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
 }
 static final int TRANSACTION_play = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 static final int TRANSACTION_pause = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
 static final int TRANSACTION_next = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
 static final int TRANSACTION_previous = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
+static final int TRANSACTION_getMusicList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
 }
 public int play() throws android.os.RemoteException;
 public int pause() throws android.os.RemoteException;
 public int next() throws android.os.RemoteException;
 public int previous() throws android.os.RemoteException;
+public int getMusicList(java.util.List<com.be02.aidl.MusicItem> list) throws android.os.RemoteException;
 }

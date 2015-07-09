@@ -11,14 +11,22 @@ package com.be02.service;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import com.be02.aidl.IMusicService;
+import com.be02.aidl.MusicItem;
 import com.be02.data.ErrorCode;
+import com.be02.data.MusicApplication;
 import com.be02.data.MusicCmd;
 import com.be02.data.MusicLog;
+import com.be02.data.db.DBManager;
 
+import android.app.DownloadManager;
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -58,10 +66,13 @@ public class MusicService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		MusicLog.d(SUB_TAG + "onStartCommand");
-		if (MusicCmd.PLAY.equals(intent.getExtras().get(MusicCmd.KEY))) {
-			MusicLog.d(SUB_TAG + "start need play");
-			play();
+		MusicLog.d(SUB_TAG + "onStartCommand startId=" + startId + ",flags=" + flags);
+		if (intent != null) {
+			Bundle bundle = intent.getExtras();
+			if ((bundle != null) && (MusicCmd.PLAY.equals(bundle.get(MusicCmd.KEY)))) {
+				MusicLog.d(SUB_TAG + "start need play");
+				play();
+			}
 		}
 		return super.onStartCommand(intent, flags, startId);
 	}
@@ -130,16 +141,89 @@ public class MusicService extends Service {
 		}
 		
 		WeakReference<MusicService> mExtendService;
+
+
+		@Override
+		public int getMusicList(List<MusicItem> list) throws RemoteException {
+			MusicLog.d(SUB_TAG + "getMusicList");
+			list = mMusicList;
+			return ErrorCode.NoError;
+		}
 	}
 	
 	
 	private void initialize()
 	{
+		mMusicList = DBManager.getInstance(MusicApplication.getInstance()).getMusicLisit();
 		mMusicBn = new MusicBn(this);
+		mMediaPlayer = new MediaPlayer();
+		if (mMediaPlayer != null) {
+			mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			mMediaPlayer.setOnCompletionListener(mOnCompletionListener);
+			mMediaPlayer.setOnErrorListener(mOnErrorListener);
+			mMediaPlayer.setOnInfoListener(mOnInfoListener);
+			mMediaPlayer.setOnPreparedListener(mOnPreparedListener);
+		}
+		
+		mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		if (mAudioManager == null) {	
+			MusicLog.e(SUB_TAG + "initialize mAudioManager == null , do nothing");
+		}
 	}
+	
+	
+	private MediaPlayer.OnCompletionListener mOnCompletionListener = new MediaPlayer.OnCompletionListener() {
+		
+		@Override
+		public void onCompletion(MediaPlayer mediaPlayer) {
+			MusicLog.d(SUB_TAG + "OnCompletionListener onCompletion mediaPlayer=" + mediaPlayer);
+		}
+	};
+	
+	private MediaPlayer.OnErrorListener mOnErrorListener = new MediaPlayer.OnErrorListener() {
+		
+		@Override
+		public boolean onError(MediaPlayer mediaPlayer, int arg1, int arg2) {
+			MusicLog.d(SUB_TAG + "OnErrorListener onError mediaPlayer=" + mediaPlayer+ arg1 + ":" + arg2);
+			return false;
+		}
+	};
+	
+	private MediaPlayer.OnInfoListener mOnInfoListener = new MediaPlayer.OnInfoListener() {
+		
+		@Override
+		public boolean onInfo(MediaPlayer mediaPlayer, int arg1, int arg2) {
+			MusicLog.d(SUB_TAG + "OnInfoListener onInfo mediaPlayer =" + mediaPlayer + arg1 + ":" + arg2);
+			return false;
+		}
+	};
+	
+	private MediaPlayer.OnPreparedListener mOnPreparedListener = new MediaPlayer.OnPreparedListener() {
+		
+		@Override
+		public void onPrepared(MediaPlayer mediaPlayer) {
+			MusicLog.d(SUB_TAG + "OnPreparedListener onPrepared mediaPlayer =" + mediaPlayer);
+			
+		}
+	};
+
+	AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener =
+			new AudioManager.OnAudioFocusChangeListener() {
+				
+				@Override
+				public void onAudioFocusChange(int status) {
+					MusicLog.d(SUB_TAG + "OnAudioFocusChangeListener onAudioFocusChange status =" + status);
+					
+				}
+	};
 	
 	private final String SUB_TAG = MusicService.class.toString()+ " ";
 	private MusicBn mMusicBn;
+	private MediaPlayer mMediaPlayer;
+	private AudioManager mAudioManager;
+	private List<MusicItem> mMusicList;
+
+	
 	
 	
 }

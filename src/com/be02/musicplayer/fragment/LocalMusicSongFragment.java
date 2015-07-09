@@ -8,6 +8,13 @@
  */
 package com.be02.musicplayer.fragment;
 
+import java.util.List;
+
+import com.be02.aidl.MusicItem;
+import com.be02.data.MusicApplication;
+import com.be02.data.MusicLog;
+import com.be02.data.adapter.MusicListAdapter;
+import com.be02.data.db.DBManager;
 import com.be02.musicplayer.R;
 
 import android.os.Bundle;
@@ -16,6 +23,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ListView;
 
 /**
  * @author lz100
@@ -32,6 +41,7 @@ public class LocalMusicSongFragment extends Fragment{
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		mView = inflater.inflate(R.layout.local_common_list_fragment, null);
+		initialize();
 		return mView;
 	}
 
@@ -45,5 +55,30 @@ public class LocalMusicSongFragment extends Fragment{
 		super.onDestroyView();
 	}
 
+	private void initialize()
+	{
+		if (mView == null) {
+			MusicLog.e(SUB_TAG + "initialize mView == null");
+			return;
+		}
+		mFrameLayout = (FrameLayout) mView.findViewById(R.id.local_common_framelayout);
+		mListView = (ListView) mView.findViewById(R.id.local_common_list_view);
+		mListData = DBManager.getInstance(MusicApplication.getInstance()).getMusicLisit();
+		if (mListData != null && mListData.size() > 0 && mFrameLayout != null) {
+			mFrameLayout.setVisibility(View.GONE);
+		}
+		mAapter = new MusicListAdapter(mListData, getActivity());
+		if (mListView != null) {
+			mListView.setAdapter(mAapter);
+		}
+		
+	}
+	
+	private final String SUB_TAG = LocalMusicFragment.class.toString() + " ";
 	private View mView;
+	private ListView mListView;
+	private MusicListAdapter mAapter;
+	private List<MusicItem> mListData;
+	private FrameLayout mFrameLayout;
+	
 }

@@ -11,8 +11,12 @@ package com.be02.musicplayer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.be02.aidl.MusicItem;
+import com.be02.data.MusicApplication;
 import com.be02.data.MusicListItem;
+import com.be02.data.MusicLog;
 import com.be02.data.adapter.FolderListAdapter;
+import com.be02.data.db.DBManager;
 import com.be02.musicplayer.fragment.LocalMusicFragment;
 
 import android.content.Context;
@@ -42,6 +46,14 @@ public class MusicListActivity extends FragmentActivity {
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		initialize();
+		MusicLog.d(SUB_TAG + "onCrate++++++++++++++");
+		DBManager dbmgr = DBManager.getInstance(MusicApplication.getInstance());
+		List<MusicItem> list = dbmgr.getMusicLisit();
+		if (list != null) {
+			MusicLog.d(SUB_TAG + "onCrate++++++++++++++list.size=" + list.size());
+		} else {
+			MusicLog.d(SUB_TAG + "onCrate++++++++++++++ null");
+		}
 	}
 
 	@Override
@@ -130,5 +142,6 @@ public class MusicListActivity extends FragmentActivity {
 	private FolderListAdapter mAdapter;
 	private List<MusicListItem> mList;
 	private Fragment mLocalMusicFragment, mCurrentFragment = null;
+	private final String SUB_TAG = MusicListActivity.class.toString() + " ";
 	
 }

@@ -30,6 +30,8 @@ public class MainActivity extends Activity {
     @Override
 	protected void onDestroy() {
 		super.onDestroy();
+		unBindService();
+		
 	}
 
 
@@ -122,6 +124,11 @@ public class MainActivity extends Activity {
     	bindService(intentBind, mConnection, 0);
     }
     
+    private void unBindService()
+    {
+    	MusicLog.d(SUB_TAG + "unBindService");
+    	unbindService(mConnection);
+    }
     
     private TextView mSongName, mSingerName, mAlbumName;
     private final String SUB_TAG = MainActivity.class.toString() + " ";
@@ -163,18 +170,18 @@ public class MainActivity extends Activity {
 		}
 	};
 	
-	private IMusicService mServiceProxy;
+	IMusicService mServiceProxy;
 	private ServiceConnection mConnection = new ServiceConnection() {
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			MusicLog.d(SUB_TAG + "onServiceDisconnected" + "name:" + name.toString());
+			MusicLog.d(SUB_TAG + "onServiceDisconnected name:" + name.toString());
 			
 		}
 		
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder binder) {
-			MusicLog.d(SUB_TAG + "onServiceConnected name=" + name);
+			MusicLog.d(SUB_TAG + "onServiceConnected name:" + name);
 			mServiceProxy = IMusicService.Stub.asInterface(binder);
 		}
 	};

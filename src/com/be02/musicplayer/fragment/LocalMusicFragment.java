@@ -116,6 +116,7 @@ public class LocalMusicFragment extends Fragment{
 		mViewPager = (ViewPager) mView.findViewById(R.id.local_music_view_pager);
 		if (mViewPager != null) {
 			mViewPager.setAdapter(mFragmentPagerAdapter);
+			mViewPager.setOffscreenPageLimit(3);
 			mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
 				
 				@Override
