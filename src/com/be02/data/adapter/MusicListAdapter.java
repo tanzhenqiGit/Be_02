@@ -70,7 +70,7 @@ import android.widget.TextView;
 				TextView number = (TextView) view.findViewById(R.id.common_list_number_txt);
 				MusicItem item = getItem(pos);
 				if (item != null && song != null && artist != null && time != null && number != null) {
-					MusicLog.d(SUB_TAG + item.getmTitle() + ":getView:" + pos);
+					//MusicLog.d(SUB_TAG + item.getmTitle() + ":getView:" + pos);
 					song.setText(item.getmTitle());
 					artist.setText(item.getmArtist());
 					time.setText(converToString(item.getmTime()));

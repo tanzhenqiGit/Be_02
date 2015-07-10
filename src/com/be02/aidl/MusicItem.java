@@ -31,7 +31,7 @@ public class MusicItem implements Parcelable {
 		this.mUri = mUri;
 		this.mSize = mSize;
 		this.mTime = mTime;
-		print();
+		//print();
 	}
 	
 	public MusicItem(Parcel parcel)

@@ -63,7 +63,7 @@ public class LocalMusicSongFragment extends Fragment{
 		}
 		mFrameLayout = (FrameLayout) mView.findViewById(R.id.local_common_framelayout);
 		mListView = (ListView) mView.findViewById(R.id.local_common_list_view);
-		mListData = DBManager.getInstance(MusicApplication.getInstance()).getMusicLisit();
+		mListData = DBManager.getInstance(MusicApplication.getInstance()).getMusicList();
 		if (mListData != null && mListData.size() > 0 && mFrameLayout != null) {
 			mFrameLayout.setVisibility(View.GONE);
 		}

@@ -21,7 +21,6 @@ import com.be02.data.MusicCmd;
 import com.be02.data.MusicLog;
 import com.be02.data.db.DBManager;
 
-import android.app.DownloadManager;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -154,7 +153,7 @@ public class MusicService extends Service {
 	
 	private void initialize()
 	{
-		mMusicList = DBManager.getInstance(MusicApplication.getInstance()).getMusicLisit();
+		mMusicList = DBManager.getInstance(MusicApplication.getInstance()).getMusicList();
 		mMusicBn = new MusicBn(this);
 		mMediaPlayer = new MediaPlayer();
 		if (mMediaPlayer != null) {

@@ -127,12 +127,12 @@ public class LocalMusicFragment extends Fragment{
 				
 				@Override
 				public void onPageScrolled(int arg0, float arg1, int arg2) {
-					MusicLog.d(SUB_TAG + "onPageScrolled arg0=" + arg0 + ",arg1=" + arg1 + ",arg2=" + arg2);
+					//MusicLog.d(SUB_TAG + "onPageScrolled arg0=" + arg0 + ",arg1=" + arg1 + ",arg2=" + arg2);
 				}
 				
 				@Override
 				public void onPageScrollStateChanged(int arg0) {
-					MusicLog.d(SUB_TAG + "onPageScrollStateChanged arg0=" + arg0);
+					//MusicLog.d(SUB_TAG + "onPageScrollStateChanged arg0=" + arg0);
 				}
 			});
 		}

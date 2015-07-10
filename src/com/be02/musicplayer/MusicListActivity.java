@@ -48,7 +48,7 @@ public class MusicListActivity extends FragmentActivity {
 		initialize();
 		MusicLog.d(SUB_TAG + "onCrate++++++++++++++");
 		DBManager dbmgr = DBManager.getInstance(MusicApplication.getInstance());
-		List<MusicItem> list = dbmgr.getMusicLisit();
+		List<MusicItem> list = dbmgr.getMusicList();
 		if (list != null) {
 			MusicLog.d(SUB_TAG + "onCrate++++++++++++++list.size=" + list.size());
 		} else {

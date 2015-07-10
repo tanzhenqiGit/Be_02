@@ -31,17 +31,39 @@
             android:orientation="vertical"
             android:paddingLeft="20dp" >
 
-            <TextView
-                android:id="@+id/common_list_song_txt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/hello_world" />
+			<FrameLayout
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    tools:ignore="UselessParent" >
 
-            <TextView
-                android:id="@+id/common_list_artist_txt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/hello_world" />
+				<LinearLayout
+				    android:id="@+id/common_list_song_artist_layout"
+				    android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:orientation="vertical">
+					<TextView
+		                android:id="@+id/common_list_song_txt"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:text="@string/hello_world" />
+	
+	            	<TextView
+		                android:id="@+id/common_list_artist_txt"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:text="@string/hello_world" />
+				    
+				</LinearLayout>
+				<TextView 
+				    android:id="@+id/common_artistlist_artist_txt"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="center_vertical"
+	                android:visibility="gone"
+	                android:text="@string/unKnowArtist" />
+		    
+			</FrameLayout>
+         
         </LinearLayout>
     </LinearLayout>
 
