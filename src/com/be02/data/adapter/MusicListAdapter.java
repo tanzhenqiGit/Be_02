@@ -20,7 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
+
 
 /**
  * @author lz100
@@ -42,6 +42,7 @@ import android.widget.TextView;
 	@Override
 	public MusicItem getItem(int pos) {
 		if (mList == null) {
+			MusicLog.d(SUB_TAG + "getItem");
 			return null;
 		} else {
 			return mList.get(pos);
@@ -55,58 +56,30 @@ import android.widget.TextView;
 	}
 
 	@Override
-	public View getView(int pos, View arg1, ViewGroup arg2) {
-		View view = null;
-		if (mContext == null) {
-			return view;
+	public View getView(int pos, View view, ViewGroup arg2) {
+		ViewHolder vh = null;
+		if (view == null) {
+			view = LayoutInflater.from(mContext).inflate(R.layout.common_list_item, arg2, false);
+			vh = new ViewHolder(view);
+			view.setTag(vh);
 		} else {
-			@SuppressWarnings("static-access")
-			LayoutInflater lf = (LayoutInflater) mContext.getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
-			if (lf != null) {
-				view = lf.inflate(R.layout.common_list_item, null);
-				TextView song = (TextView) view.findViewById(R.id.common_list_song_txt);
-				TextView artist = (TextView) view.findViewById(R.id.common_list_artist_txt);
-				TextView time = (TextView) view.findViewById(R.id.common_list_time_txt);
-				TextView number = (TextView) view.findViewById(R.id.common_list_number_txt);
-				MusicItem item = getItem(pos);
-				if (item != null && song != null && artist != null && time != null && number != null) {
-					//MusicLog.d(SUB_TAG + item.getmTitle() + ":getView:" + pos);
-					song.setText(item.getmTitle());
-					artist.setText(item.getmArtist());
-					time.setText(converToString(item.getmTime()));
-					number.setText(pos+1 + ".");
-				} else {
-					MusicLog.d(SUB_TAG + ":getView other case:" + pos);
-				}
-			}
+			vh = (ViewHolder) view.getTag();
 		}
+		MusicItem item = getItem(pos);
+		vh.mSonger.setText(item.getmTitle());
+		vh.mArtist.setText(item.getmArtist());
+		vh.mTime.setText(item.converToStringTime(item.getmTime()));
+		vh.mNumber.setText(pos+1 + ".");
+	
 		return view;
 	}
 
-	@SuppressLint("DefaultLocale") private String converToString(int time) 
-	{
-		time = time / 1000;
-		int min = time / 60;
-		int hor = min / 60;
-		min = min % 60;
-		int second = time % 60;
-		
-		if (hor > 0) {
-			return String.format("%02:%02d:%02d", hor, min, second);
-		}  else {
-			return String.format("%02d:%02d", min, second);
-		}
-	}
+
 	
 	public MusicListAdapter(List<MusicItem> mList, Context mContext) {
 		super();
 		this.mList = mList;
 		this.mContext = mContext;
-		if (mList != null) {
-			MusicLog.d(SUB_TAG + "MusicListAdapter 	mList.size =" + mList.size());
-		} else { 
-			MusicLog.d(SUB_TAG + "MusicListAdapter mList == null");
-		}
 	}
 	
 	private List<MusicItem> mList;

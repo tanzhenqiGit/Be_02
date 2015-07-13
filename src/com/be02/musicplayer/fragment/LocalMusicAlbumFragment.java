@@ -28,9 +28,9 @@ import android.widget.ListView;
 
 /**
  * @author lz100
- *
+ * 
  */
-public class LocalMusicAlbumFragment extends Fragment{
+public class LocalMusicAlbumFragment extends Fragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -58,36 +58,40 @@ public class LocalMusicAlbumFragment extends Fragment{
 		MusicLog.d(SUB_TAG + "onDestroyView");
 		super.onDestroyView();
 	}
-	
-	private void initialize()
-	{
+
+	private void initialize() {
 		if (mView == null) {
 			MusicLog.e(SUB_TAG + "initialize mView == null");
 			return;
 		}
 		mListView = (ListView) mView.findViewById(R.id.local_common_list_view);
 		if (mListView != null) {
-			mListData = DBManager.getInstance(MusicApplication.getInstance()).getAlbumList();
+			mListData = DBManager.getInstance(MusicApplication.getInstance())
+					.getAlbumList();
 			if (mListData != null && mListData.size() > 0) {
 				mAdapter = new AlbumListAdapter(getActivity(), mListData);
 				mListView.setAdapter(mAdapter);
-				mFrameLayout = (FrameLayout) mView.findViewById(R.id.local_common_framelayout);
+				mFrameLayout = (FrameLayout) mView
+						.findViewById(R.id.local_common_framelayout);
 				if (mFrameLayout != null) {
 					mFrameLayout.setVisibility(View.GONE);
 				}
+
 			} else {
 				MusicLog.e(SUB_TAG + "mListData is invalid");
 			}
 		} else {
 			MusicLog.e(SUB_TAG + "mListView == null");
 		}
-		
+
 	}
+
 	private View mView;
-	private final String SUB_TAG = LocalMusicAlbumFragment.class.toString() + " ";
+	private final String SUB_TAG = LocalMusicAlbumFragment.class.toString()
+			+ " ";
 	private ListView mListView;
 	private List<AlbumListItem> mListData;
 	private AlbumListAdapter mAdapter;
 	private FrameLayout mFrameLayout;
-	
+
 }

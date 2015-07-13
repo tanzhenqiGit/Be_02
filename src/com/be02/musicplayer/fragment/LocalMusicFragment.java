@@ -36,7 +36,6 @@ public class LocalMusicFragment extends Fragment{
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		MusicLog.d("LocalMusicFragment onAttach");
 	}
 
 	@Override

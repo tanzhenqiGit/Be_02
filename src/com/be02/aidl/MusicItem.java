@@ -9,6 +9,7 @@
 package com.be02.aidl;
 
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -33,6 +34,7 @@ public class MusicItem implements Parcelable {
 		this.mTime = mTime;
 		//print();
 	}
+	public MusicItem() {}
 	
 	public MusicItem(Parcel parcel)
 	{
@@ -87,6 +89,22 @@ public class MusicItem implements Parcelable {
 	}
 	public void setmTime(int mTime) {
 		this.mTime = mTime;
+	}
+	
+	
+	@SuppressLint("DefaultLocale") public String converToStringTime(int time) 
+	{
+		time = time / 1000;
+		int min = time / 60;
+		int hor = min / 60;
+		min = min % 60;
+		int second = time % 60;
+		
+		if (hor > 0) {
+			return String.format("%02:%02d:%02d", hor, min, second);
+		}  else {
+			return String.format("%02d:%02d", min, second);
+		}
 	}
 	
 	public void print()

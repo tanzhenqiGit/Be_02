@@ -19,8 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+
 
 /**
  * @author lz100
@@ -37,6 +36,7 @@ public class AlbumListAdapter extends BaseAdapter {
 	@Override
 	public int getCount() {
 		if (mList == null) {
+			MusicLog.e(SUB_TAG + "getCount ==0 ");
 			return 0;
 		} else {
 			return mList.size();
@@ -58,35 +58,23 @@ public class AlbumListAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int pos, View arg1, ViewGroup arg2) {
-		View view = null;
-		if (mContext == null) {
-			MusicLog.e(SUB_TAG + "getView mContext == null");
-			return view;
+	public View getView(int pos, View view, ViewGroup arg2) {
+		ViewHolder vh = null;
+		if (view == null) {
+			view = LayoutInflater.from(mContext).inflate(R.layout.common_list_item, arg2, false);
+			vh = new ViewHolder(view);
+			view.setTag(vh);
+		} else {
+			vh = (ViewHolder)view.getTag();
 		}
-		@SuppressWarnings("static-access")
-		LayoutInflater lf = (LayoutInflater) mContext.getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
-		view = lf.inflate(R.layout.common_list_item, null);
-		AlbumListItem item = getItem(pos);
-		TextView artist = (TextView) view.findViewById(R.id.common_list_artist_txt);
-		TextView song = (TextView) view.findViewById(R.id.common_list_song_txt);
-		if (item != null && artist != null && song != null) {
-			artist.setText(item.getArtist());
-			song.setText(item.getAblum());
-		}
-		TextView number = (TextView) view.findViewById(R.id.common_list_number_txt);
-		ImageView image = (ImageView) view.findViewById(R.id.common_list_imge);
-		if (number != null) {
-			number.setText(pos + 1 + ".");
-		}
-		if (image != null) {
-			image.setImageResource(R.drawable.albumart_mp_unknown_list);
-		}
-		
-		TextView time = (TextView) view.findViewById(R.id.common_list_time_txt);
-		if (time != null) {
-			time.setVisibility(View.GONE);
-		}
+			AlbumListItem item = getItem(pos);
+			vh.mArtist.setText(item.getArtist());
+			vh.mSonger.setText(item.getAblum());
+			vh.mLinearLayout.setVisibility(View.VISIBLE);
+			vh.mImg.setImageResource(R.drawable.albumart_mp_unknown_list);
+			vh.mNumber.setText(pos + 1 + ".");
+			vh.mTime.setVisibility(View.GONE);
+
 		return view;
 	}
 

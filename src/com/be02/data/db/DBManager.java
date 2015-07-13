@@ -104,9 +104,7 @@ public final class DBManager {
 		do {
 			String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
 			String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-			if (artist.equals("<unknown>")) {
-				artist = mContext.getString(R.string.unKnowArtist);
-			}
+			artist = changeArtistName(artist);
 			String ablum = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
 			String dispName = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
 			String uri = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
@@ -124,6 +122,7 @@ public final class DBManager {
 			
 		} while(cursor.moveToNext());
 		cursor.close();
+		cursor = null;
 	}
 	
 	private void upateArtistList()
@@ -145,13 +144,15 @@ public final class DBManager {
 		cursor.moveToFirst();
 		do {
 			String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Artists.ARTIST));
-			changeArtistName(artist);
+			artist = changeArtistName(artist);
 			synchronized (mArtistList) {
 				if (mArtistList != null) {
 					mArtistList.add(artist);
 				}
 			}
 		} while(cursor.moveToNext());
+		cursor.close();
+		cursor = null;
 	}
 	
 	private void updateAblumList()
@@ -174,6 +175,7 @@ public final class DBManager {
 		do {
 			String ablum = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM));
 			String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST));
+			artist = changeArtistName(artist);
 			AlbumListItem item = new AlbumListItem(ablum, artist);
 			synchronized (mAlbumList) {
 				if (mAlbumList != null) {
@@ -181,6 +183,8 @@ public final class DBManager {
 				}
 			}
 		} while(cursor.moveToNext());
+		cursor.close();
+		cursor = null;
 	}
 	
 	private String changeArtistName(String artist)
@@ -190,11 +194,29 @@ public final class DBManager {
 		}
 		return artist;
 	}
+	
+	public void setCurMusicList(List<MusicItem> list)
+	{
+		synchronized (mCurMusicListLock) {
+			mCurMusicList = list;
+		}
+		
+	}
+	
+	public List<MusicItem> getCurMusicList()
+	{
+		synchronized (mCurMusicListLock) {
+			return mCurMusicList;
+		}
+		
+	}
 	private static DBManager mDBMgr = null;
 	private ContentResolver mContentResolver;
 	private List<MusicItem> mMusicList;
 	private List<String> mArtistList;
 	private List<AlbumListItem> mAlbumList;
+	private Object mCurMusicListLock = new Object();
+	private List<MusicItem> mCurMusicList;
 	private Context mContext;
 	private final String SUB_TAG = DBManager.class.toString() + " ";
 }

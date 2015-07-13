@@ -18,22 +18,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+
 
 /**
  * @author lz100
- *
+ * 
  */
 public class ArtistListAdapter extends BaseAdapter {
 
-	public ArtistListAdapter(Context context, List<String> list)
-	{
+	public ArtistListAdapter(Context context, List<String> list) {
 		mContext = context;
 		mList = list;
 	}
-	
+
 	@Override
 	public int getCount() {
 		if (mList == null) {
@@ -46,6 +43,7 @@ public class ArtistListAdapter extends BaseAdapter {
 	@Override
 	public String getItem(int pos) {
 		if (mList == null) {
+			MusicLog.d(SUB_TAG + "getItem return null");
 			return null;
 		} else {
 			return mList.get(pos);
@@ -58,46 +56,27 @@ public class ArtistListAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int pos, View arg1, ViewGroup arg2) {
-		View view = null;
-		if (mContext == null) {
-			MusicLog.e(SUB_TAG + "getview mContext == null");
-			return view;
-		}
-		@SuppressWarnings("static-access")
-		LayoutInflater lf = (LayoutInflater) mContext.getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
-		if (lf == null) {
-			MusicLog.e(SUB_TAG + "getview LayoutInflater == null");
-			return view;
-		}
-		view = lf.inflate(R.layout.common_list_item, null);
-		if (view != null)
-		{
-			TextView artist = (TextView) view.findViewById(R.id.common_artistlist_artist_txt);
-			if (artist != null) {
-				artist.setText(getItem(pos));
-				artist.setVisibility(View.VISIBLE);
-			}
-			ImageView img = (ImageView) view.findViewById(R.id.common_list_imge);
-			if (img != null) {
-				img.setImageResource(R.drawable.albumart_mp_unkn_own_list);
-			}
-			TextView number = (TextView) view.findViewById(R.id.common_list_number_txt);
-			if (number != null) {
-				number.setText(pos+1 + ".");
-			}
-			LinearLayout ll = (LinearLayout) view.findViewById(R.id.common_list_song_artist_layout);
-			if (ll != null) {
-				ll.setVisibility(View.GONE);
-			}
-			TextView time = (TextView) view.findViewById(R.id.common_list_time_txt);
-			if (time != null) {
-				time.setVisibility(View.GONE);
-			}
-		}
+	public View getView(int pos, View view, ViewGroup arg2) {
+		ViewHolder viewHolder = null;
 		
+		if (view == null) {
+			view = LayoutInflater.from(mContext).inflate(R.layout.common_list_item, arg2, false);
+			viewHolder = new ViewHolder(view);
+			view.setTag(viewHolder);
+		}else{
+			viewHolder = (ViewHolder) view.getTag();
+		}
+
+		viewHolder.mMidArtist.setText(getItem(pos));
+		viewHolder.mMidArtist.setVisibility(View.VISIBLE);
+		viewHolder.mImg.setImageResource(R.drawable.albumart_mp_unkn_own_list);
+		viewHolder.mNumber.setText(pos + 1 + ".");
+		viewHolder.mLinearLayout.setVisibility(View.GONE);
+		viewHolder.mTime.setVisibility(View.GONE);
 		return view;
 	}
+
+
 
 	private final String SUB_TAG = ArtistListAdapter.class.toString() + " ";
 	private List<String> mList;

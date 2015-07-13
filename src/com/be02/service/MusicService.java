@@ -9,10 +9,13 @@
 package com.be02.service;
 
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.be02.aidl.IMusicListener;
 import com.be02.aidl.IMusicService;
 import com.be02.aidl.MusicItem;
 import com.be02.data.ErrorCode;
@@ -21,12 +24,15 @@ import com.be02.data.MusicCmd;
 import com.be02.data.MusicLog;
 import com.be02.data.db.DBManager;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.RemoteException;
 
 
@@ -78,11 +84,51 @@ public class MusicService extends Service {
 
 	private int play()
 	{
+		MusicItem item;
+		if (mCurMusicList != null) {
+			if (mCurPlayerIndex < mCurMusicList.size()) {
+				item = mCurMusicList.get(mCurPlayerIndex);
+				try {
+					if (mMediaPlayer.isPlaying()) {
+						mMediaPlayer.pause();
+						mMediaPlayer.stop();
+					}
+					
+					mMediaPlayer.reset();
+					MusicLog.d(SUB_TAG + "prepare set source and start " + item.getmUri());
+					mMediaPlayer.setDataSource(item.getmUri());
+					mMediaPlayer.prepare();
+					mMediaPlayer.start();
+					MusicLog.d(SUB_TAG + "*****updateSoneInfo 1*****");
+					updateSongInfo(item);
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+					MusicLog.d(SUB_TAG + "*****updateSoneInfo 2*****");
+				} catch (SecurityException e) {
+					e.printStackTrace();
+					MusicLog.d(SUB_TAG + "*****updateSoneInfo 3*****");
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+					MusicLog.d(SUB_TAG + "*****updateSoneInfo 4*****");
+				} catch (IOException e) {
+					e.printStackTrace();
+					MusicLog.d(SUB_TAG + "*****updateSoneInfo 5*****");
+				}
+			}
+		} else {
+			MusicLog.d(SUB_TAG + "play mCurMusicList == null do nothing.");
+			return ErrorCode.NullPointError;
+		}
+		
 		return ErrorCode.NoError;
 	}
 	
 	private int pause()
 	{
+		if (mMediaPlayer.isPlaying()) 
+		{
+			mMediaPlayer.pause();
+		}
 		return ErrorCode.NoError;
 	}
 	private int next()
@@ -141,19 +187,57 @@ public class MusicService extends Service {
 		
 		WeakReference<MusicService> mExtendService;
 
-
 		@Override
-		public int getMusicList(List<MusicItem> list) throws RemoteException {
-			MusicLog.d(SUB_TAG + "getMusicList");
-			list = mMusicList;
+		public int setCurMusicList(List<MusicItem> list) throws RemoteException {
+			if (list != null && list.size() > 0) {
+				mCurMusicList = list;
+				return ErrorCode.NoError;
+			}
+			return ErrorCode.NullPointError;
+		}
+		
+		@Override
+		public int setCurPlayIndex(int index) throws RemoteException {
+			mCurPlayerIndex = index;
+			play();
 			return ErrorCode.NoError;
 		}
+		
+		@Override
+		public int registerListener(IMusicListener listener) {
+			if (listener  == null) {
+				return ErrorCode.NoError;
+			}
+			MusicBinderListener l = new MusicBinderListener(listener);
+			try {
+				listener.asBinder().linkToDeath(l, 0);
+				mListeners.add(l);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+
+			return ErrorCode.NoError;
+		}
+		
+		@Override
+		public int removeListener(IMusicListener listener) {
+			for (MusicBinderListener l : mListeners)
+			{
+				if (l.mListener.asBinder().equals(listener.asBinder())) {
+					mListeners.remove(l);
+					l.mListener.asBinder().unlinkToDeath(l, 0);
+					break;
+				}
+			}
+			return 0;
+		}
+
 	}
 	
 	
 	private void initialize()
 	{
-		mMusicList = DBManager.getInstance(MusicApplication.getInstance()).getMusicList();
+		DBManager.getInstance(MusicApplication.getInstance());
 		mMusicBn = new MusicBn(this);
 		mMediaPlayer = new MediaPlayer();
 		if (mMediaPlayer != null) {
@@ -171,7 +255,8 @@ public class MusicService extends Service {
 	}
 	
 	
-	private MediaPlayer.OnCompletionListener mOnCompletionListener = new MediaPlayer.OnCompletionListener() {
+	private MediaPlayer.OnCompletionListener mOnCompletionListener 
+		= new MediaPlayer.OnCompletionListener() {
 		
 		@Override
 		public void onCompletion(MediaPlayer mediaPlayer) {
@@ -183,7 +268,8 @@ public class MusicService extends Service {
 		
 		@Override
 		public boolean onError(MediaPlayer mediaPlayer, int arg1, int arg2) {
-			MusicLog.d(SUB_TAG + "OnErrorListener onError mediaPlayer=" + mediaPlayer+ arg1 + ":" + arg2);
+			MusicLog.d(SUB_TAG + "OnErrorListener onError mediaPlayer=" + 
+					mediaPlayer+ arg1 + ":" + arg2);
 			return false;
 		}
 	};
@@ -192,7 +278,8 @@ public class MusicService extends Service {
 		
 		@Override
 		public boolean onInfo(MediaPlayer mediaPlayer, int arg1, int arg2) {
-			MusicLog.d(SUB_TAG + "OnInfoListener onInfo mediaPlayer =" + mediaPlayer + arg1 + ":" + arg2);
+			MusicLog.d(SUB_TAG + "OnInfoListener onInfo mediaPlayer =" + 
+					mediaPlayer + arg1 + ":" + arg2);
 			return false;
 		}
 	};
@@ -211,16 +298,75 @@ public class MusicService extends Service {
 				
 				@Override
 				public void onAudioFocusChange(int status) {
-					MusicLog.d(SUB_TAG + "OnAudioFocusChangeListener onAudioFocusChange status =" + status);
+					MusicLog.d(SUB_TAG + "OnAudioFocusChangeListener onAudioFocusChange status =" 
+				+ status);
 					
 				}
 	};
 	
+	private final class MusicBinderListener implements IBinder.DeathRecipient
+	{
+		public MusicBinderListener(IMusicListener listener)
+		{
+			mListener = listener;
+		}
+
+		@Override
+		public void binderDied() {
+			synchronized (mListener) {
+				mListeners.remove(this);
+				mListener.asBinder().unlinkToDeath(this, 0);
+			}
+		}
+		private IMusicListener mListener;
+	}
+	private void updateSongInfo(MusicItem item)
+	{
+		MusicLog.d(SUB_TAG + "updateSongInfo listener.size = " + mListeners.size());
+
+		if (mHandle != null) {
+			Message msg = mHandle.obtainMessage();
+			msg.what = MSG_SONG_CHANGE;
+			msg.obj = item;
+			mHandle.sendMessage(msg);
+		}
+	}
+	private void onSongChagned(MusicItem item)
+	{
+		MusicLog.d(SUB_TAG + "onSongChagned listener.size = " + mListeners.size());
+		for (MusicBinderListener l: mListeners) {
+			try {
+				l.mListener.onSongChanged(item);
+			} catch (RemoteException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			}
+		}
+	}
+	private final int MSG_SONG_CHANGE = 0x01;
+	@SuppressLint("HandlerLeak") private Handler mHandle = new Handler()
+	{
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case MSG_SONG_CHANGE:
+				MusicItem item = (MusicItem)msg.obj;
+				onSongChagned(item);
+				break;
+			}
+		}
+		
+	};
+	
+	private ArrayList<MusicBinderListener> mListeners 
+		= new ArrayList<MusicService.MusicBinderListener>();
 	private final String SUB_TAG = MusicService.class.toString()+ " ";
 	private MusicBn mMusicBn;
 	private MediaPlayer mMediaPlayer;
 	private AudioManager mAudioManager;
-	private List<MusicItem> mMusicList;
+	private List<MusicItem> mCurMusicList = null;
+	private int mCurPlayerIndex = 0;
 
 	
 	

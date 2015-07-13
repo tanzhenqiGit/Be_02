@@ -11,13 +11,12 @@ package com.be02.musicplayer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.be02.aidl.MusicItem;
-import com.be02.data.MusicApplication;
+import com.be02.aidl.IMusicService;
 import com.be02.data.MusicListItem;
 import com.be02.data.MusicLog;
 import com.be02.data.adapter.FolderListAdapter;
-import com.be02.data.db.DBManager;
 import com.be02.musicplayer.fragment.LocalMusicFragment;
+import com.be02.service.MusicServiceConnection;
 
 import android.content.Context;
 import android.content.Intent;
@@ -46,14 +45,7 @@ public class MusicListActivity extends FragmentActivity {
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		initialize();
-		MusicLog.d(SUB_TAG + "onCrate++++++++++++++");
-		DBManager dbmgr = DBManager.getInstance(MusicApplication.getInstance());
-		List<MusicItem> list = dbmgr.getMusicList();
-		if (list != null) {
-			MusicLog.d(SUB_TAG + "onCrate++++++++++++++list.size=" + list.size());
-		} else {
-			MusicLog.d(SUB_TAG + "onCrate++++++++++++++ null");
-		}
+		startAndBindService();
 	}
 
 	@Override
@@ -65,6 +57,7 @@ public class MusicListActivity extends FragmentActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		unBindService();
 	}
 
 	@Override
@@ -82,6 +75,10 @@ public class MusicListActivity extends FragmentActivity {
 		super.onStop();
 	}
 
+	public IMusicService getServiceProxy()
+	{
+		return mConnection.getMusicProxy();
+	}
 	private void initialize()
 	{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -91,6 +88,8 @@ public class MusicListActivity extends FragmentActivity {
 			initializeList();
 			mAdapter = new FolderListAdapter(this, mList);
 			mListView.setAdapter(mAdapter);
+		} else {
+			MusicLog.d(SUB_TAG + "initialize mListView == null");
 		}
 		initializeFragment();
 		if (mLocalMusicFragment != null) {
@@ -138,10 +137,24 @@ public class MusicListActivity extends FragmentActivity {
 		mCurrentFragment = fragment;
 	}
 	
+    private void startAndBindService()
+    {
+    	String actionName = "com.be02.service.MusicService";
+    	Intent intentBind = new Intent(actionName);
+    	bindService(intentBind, mConnection, 0);
+    }
+    
+    private void unBindService()
+    {
+    	MusicLog.d(SUB_TAG + "unBindService");
+    	unbindService(mConnection);
+    }
+	
 	private ListView mListView;
 	private FolderListAdapter mAdapter;
 	private List<MusicListItem> mList;
 	private Fragment mLocalMusicFragment, mCurrentFragment = null;
 	private final String SUB_TAG = MusicListActivity.class.toString() + " ";
+	private MusicServiceConnection mConnection = new MusicServiceConnection();
 	
 }

@@ -1,15 +1,17 @@
 package com.be02.musicplayer;
 
-import com.be02.aidl.IMusicService;
+import com.be02.aidl.MusicItem;
+import com.be02.aidl.MusicListener;
 import com.be02.data.MusicCmd;
 import com.be02.data.MusicLog;
+import com.be02.service.MusicServiceConnection;
 
 import android.os.Bundle;
-import android.os.IBinder;
+import android.os.Handler;
+import android.os.Message;
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -17,11 +19,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class MainActivity extends Activity {
+@SuppressLint("HandlerLeak") public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MusicLog.d(SUB_TAG + "onCreate");
         initialize();
         startAndBindService();
     }
@@ -30,6 +33,7 @@ public class MainActivity extends Activity {
     @Override
 	protected void onDestroy() {
 		super.onDestroy();
+		MusicLog.d(SUB_TAG + "onDestroy");
 		unBindService();
 		
 	}
@@ -38,6 +42,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		MusicLog.d(SUB_TAG + "onPause");
 	}
 
 
@@ -110,6 +115,7 @@ public class MainActivity extends Activity {
     	if (mTotleTime != null) {
     		
     	}
+    	mMusicServiceListener = new MusicListener(mHandle);
     }
     
     private void startAndBindService()
@@ -121,6 +127,7 @@ public class MainActivity extends Activity {
     	startService(intentStart);
     	
     	Intent intentBind = new Intent(actionName);
+    	mConnection.setListener(mMusicServiceListener);
     	bindService(intentBind, mConnection, 0);
     }
     
@@ -129,6 +136,37 @@ public class MainActivity extends Activity {
     	MusicLog.d(SUB_TAG + "unBindService");
     	unbindService(mConnection);
     }
+    
+    private void updateText(MusicItem item)
+    {
+    	mSongName.setText(item.getmTitle());
+    	mAlbumName.setText(item.getmAblum());
+    	mSingerName.setText(item.getmArtist());
+    	mTotleTime.setText(item.converToStringTime(item.getmTime()));
+    }
+    
+    private Handler mHandle = new Handler()
+    {
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what)
+			{
+			case MusicListener.MSG_SONG_UPDATE:
+				MusicItem item = (MusicItem)msg.obj;
+				updateText(item);
+				break;
+			case MusicListener.MSG_TIME_UPDATE:
+			
+				break;
+			default:
+				
+				break;
+			}
+		}
+    	
+    };
     
     private TextView mSongName, mSingerName, mAlbumName;
     private final String SUB_TAG = MainActivity.class.toString() + " ";
@@ -170,19 +208,7 @@ public class MainActivity extends Activity {
 		}
 	};
 	
-	IMusicService mServiceProxy;
-	private ServiceConnection mConnection = new ServiceConnection() {
-		
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			MusicLog.d(SUB_TAG + "onServiceDisconnected name:" + name.toString());
-			
-		}
-		
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder binder) {
-			MusicLog.d(SUB_TAG + "onServiceConnected name:" + name);
-			mServiceProxy = IMusicService.Stub.asInterface(binder);
-		}
-	};
+	private MusicServiceConnection mConnection = new MusicServiceConnection();
+	private MusicListener mMusicServiceListener;
+
 }
