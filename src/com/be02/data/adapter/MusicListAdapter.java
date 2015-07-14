@@ -68,7 +68,7 @@ import android.widget.BaseAdapter;
 		MusicItem item = getItem(pos);
 		vh.mSonger.setText(item.getmTitle());
 		vh.mArtist.setText(item.getmArtist());
-		vh.mTime.setText(item.converToStringTime(item.getmTime()));
+		vh.mTime.setText(MusicItem.converToStringTime(item.getmTime()));
 		vh.mNumber.setText(pos+1 + ".");
 	
 		return view;

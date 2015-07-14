@@ -13,4 +13,6 @@ interface IMusicService
 	int setCurPlayIndex(int index);
 	int registerListener(IMusicListener listener);
 	int removeListener(IMusicListener listener);
+	int getCurPlayMode();
+	int getCurPlayStatus();
 }

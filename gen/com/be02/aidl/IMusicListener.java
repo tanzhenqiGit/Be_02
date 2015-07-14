@@ -65,6 +65,30 @@ reply.writeInt(0);
 }
 return true;
 }
+case TRANSACTION_onDurationChanged:
+{
+data.enforceInterface(DESCRIPTOR);
+int _arg0;
+_arg0 = data.readInt();
+this.onDurationChanged(_arg0);
+return true;
+}
+case TRANSACTION_onPlayStatusChanged:
+{
+data.enforceInterface(DESCRIPTOR);
+int _arg0;
+_arg0 = data.readInt();
+this.onPlayStatusChanged(_arg0);
+return true;
+}
+case TRANSACTION_onPlayModeChanged:
+{
+data.enforceInterface(DESCRIPTOR);
+int _arg0;
+_arg0 = data.readInt();
+this.onPlayModeChanged(_arg0);
+return true;
+}
 }
 return super.onTransact(code, data, reply, flags);
 }
@@ -106,10 +130,52 @@ finally {
 _data.recycle();
 }
 }
+@Override public void onDurationChanged(int duration) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeInt(duration);
+mRemote.transact(Stub.TRANSACTION_onDurationChanged, _data, null, android.os.IBinder.FLAG_ONEWAY);
+}
+finally {
+_data.recycle();
+}
+}
+@Override public void onPlayStatusChanged(int status) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeInt(status);
+mRemote.transact(Stub.TRANSACTION_onPlayStatusChanged, _data, null, android.os.IBinder.FLAG_ONEWAY);
+}
+finally {
+_data.recycle();
+}
+}
+@Override public void onPlayModeChanged(int mode) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeInt(mode);
+mRemote.transact(Stub.TRANSACTION_onPlayModeChanged, _data, null, android.os.IBinder.FLAG_ONEWAY);
+}
+finally {
+_data.recycle();
+}
+}
 }
 static final int TRANSACTION_onTimeChanged = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 static final int TRANSACTION_onSongChanged = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
+static final int TRANSACTION_onDurationChanged = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
+static final int TRANSACTION_onPlayStatusChanged = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
+static final int TRANSACTION_onPlayModeChanged = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
 }
 public void onTimeChanged(int time) throws android.os.RemoteException;
 public void onSongChanged(com.be02.aidl.MusicItem item) throws android.os.RemoteException;
+public void onDurationChanged(int duration) throws android.os.RemoteException;
+public void onPlayStatusChanged(int status) throws android.os.RemoteException;
+public void onPlayModeChanged(int mode) throws android.os.RemoteException;
 }

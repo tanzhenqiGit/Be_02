@@ -6,4 +6,7 @@ oneway interface IMusicListener
 {
     void onTimeChanged(int time);
     void onSongChanged(out MusicItem item);
+    void onDurationChanged(int duration);
+    void onPlayStatusChanged(int status);
+    void onPlayModeChanged(int mode);
 }

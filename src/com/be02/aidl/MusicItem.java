@@ -92,7 +92,7 @@ public class MusicItem implements Parcelable {
 	}
 	
 	
-	@SuppressLint("DefaultLocale") public String converToStringTime(int time) 
+	@SuppressLint("DefaultLocale") public static String converToStringTime(int time) 
 	{
 		time = time / 1000;
 		int min = time / 60;

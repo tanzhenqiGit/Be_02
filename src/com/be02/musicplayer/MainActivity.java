@@ -4,11 +4,13 @@ import com.be02.aidl.MusicItem;
 import com.be02.aidl.MusicListener;
 import com.be02.data.MusicCmd;
 import com.be02.data.MusicLog;
+import com.be02.service.MusicService;
 import com.be02.service.MusicServiceConnection;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 @SuppressLint("HandlerLeak") public class MainActivity extends Activity {
@@ -48,7 +51,6 @@ import android.widget.TextView;
 
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -95,26 +97,13 @@ import android.widget.TextView;
     		mAudioCycleMode.setOnClickListener(mListener);
     	}
     	mFavoriteImg = (ImageView) findViewById(R.id.main_favorite_image);
+    	mAudioPlayImg = (ImageView) findViewById(R.id.main_audio_play_img);
     	mSongName = (TextView) findViewById(R.id.main_song_name);
-    	if (mSongName != null) {
-    		
-    	}
     	mSingerName = (TextView) findViewById(R.id.main_singer_name);
-    	if (mSingerName != null) {
-    		
-    	}
     	mAlbumName = (TextView) findViewById(R.id.main_album_name);
-    	if (mAlbumName != null) {
-    		
-    	}
     	mStartTime = (TextView) findViewById(R.id.main_start_time_txt);
-    	if (mStartTime != null) {
-    		
-    	}
     	mTotleTime = (TextView) findViewById(R.id.main_total_time_txt);
-    	if (mTotleTime != null) {
-    		
-    	}
+    	mSeekBar = (SeekBar) findViewById(R.id.main_seek_bar);
     	mMusicServiceListener = new MusicListener(mHandle);
     }
     
@@ -137,12 +126,39 @@ import android.widget.TextView;
     	unbindService(mConnection);
     }
     
-    private void updateText(MusicItem item)
+    private void updateText(Message msg)
     {
-    	mSongName.setText(item.getmTitle());
-    	mAlbumName.setText(item.getmAblum());
-    	mSingerName.setText(item.getmArtist());
-    	mTotleTime.setText(item.converToStringTime(item.getmTime()));
+		MusicItem item = (MusicItem)msg.obj;
+    	if (item != null) {
+	    	mSongName.setText(item.getmTitle());
+	    	mAlbumName.setText(item.getmAblum());
+	    	mSingerName.setText(item.getmArtist());
+	    	mTotleTime.setText(MusicItem.converToStringTime(item.getmTime()));
+	    	//mSeekBar.setMax(item.getmTime());
+    	} else {
+    		mSongName.setText("");
+    		mAlbumName.setText("");
+    		mSingerName.setText("");
+    		mTotleTime.setText(MusicItem.converToStringTime(0));
+    		//mSeekBar.setMax(0);
+    		
+    	}
+    }
+    private void updateTime(Message msg)
+    {
+    	int time = msg.arg1;
+    	mStartTime.setText(MusicItem.converToStringTime(time));
+    	mSeekBar.setProgress(time);
+    }
+    
+    private void updatePlayStatus(Message msg)
+    {
+    	int status = msg.arg1;
+    	if (status == MusicService.MUSIC_PLAY) {
+    		mAudioPlayImg.setImageResource(R.drawable.main_audio_play);
+    	} else {
+    		mAudioPlayImg.setImageResource(R.drawable.main_audio_pause);
+    	}
     }
     
     private Handler mHandle = new Handler()
@@ -154,11 +170,19 @@ import android.widget.TextView;
 			switch (msg.what)
 			{
 			case MusicListener.MSG_SONG_UPDATE:
-				MusicItem item = (MusicItem)msg.obj;
-				updateText(item);
+				updateText(msg);
 				break;
 			case MusicListener.MSG_TIME_UPDATE:
-			
+				updateTime(msg);
+				break;
+			case MusicListener.MSG_DURATION_UPDATE:
+				mSeekBar.setMax(msg.arg1);
+				break;
+			case MusicListener.MSG_PLAY_STATUS_UPDATE:
+				updatePlayStatus(msg);
+				break;
+			case MusicListener.MSG_PLAY_MODE_UPDATE:
+				
 				break;
 			default:
 				
@@ -168,12 +192,6 @@ import android.widget.TextView;
     	
     };
     
-    private TextView mSongName, mSingerName, mAlbumName;
-    private final String SUB_TAG = MainActivity.class.toString() + " ";
-    private TextView mStartTime, mTotleTime;
-    ImageView mFavoriteImg;
-    private LinearLayout mMainReturn, mMainList, mFavorite;
-    private LinearLayout mAudioSetting, mAudioPrevious, mAudioPlay, mAudioPlayNext,mAudioCycleMode;
     private View.OnClickListener mListener = new View.OnClickListener() {
 		
 		@Override
@@ -193,10 +211,32 @@ import android.widget.TextView;
 				
 				break;
 			case R.id.main_audio_previous:
-				
+				try {
+					mConnection.getMusicProxy().previous();
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+				break;
+			case R.id.main_audio_play:
+				try {
+					int status = mConnection.getMusicProxy().getCurPlayStatus();
+					if (status == MusicService.MUSIC_PLAY) {
+						mConnection.getMusicProxy().pause();
+					} else if (status == MusicService.MUSIC_PAUSE) {
+						mConnection.getMusicProxy().play();
+					} else {
+						
+					}
+				} catch (RemoteException e1) {
+					e1.printStackTrace();
+				}
 				break;
 			case R.id.main_audio_next:
-				
+				try {
+					mConnection.getMusicProxy().next();
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 				break;
 			case R.id.main_audio_cycle_mode:
 				
@@ -210,5 +250,11 @@ import android.widget.TextView;
 	
 	private MusicServiceConnection mConnection = new MusicServiceConnection();
 	private MusicListener mMusicServiceListener;
-
+    private TextView mSongName, mSingerName, mAlbumName;
+    private final String SUB_TAG = MainActivity.class.toString() + " ";
+    private TextView mStartTime, mTotleTime;
+    private SeekBar mSeekBar;
+    private ImageView mFavoriteImg, mAudioPlayImg;
+    private LinearLayout mMainReturn, mMainList, mFavorite;
+    private LinearLayout mAudioSetting, mAudioPrevious, mAudioPlay, mAudioPlayNext,mAudioCycleMode;
 }

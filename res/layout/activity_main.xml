@@ -217,7 +217,8 @@
             android:id="@+id/main_audio_play"
             android:orientation="vertical"
             >
-            <ImageView 
+            <ImageView
+                android:id="@+id/main_audio_play_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/AudioImageStyle"

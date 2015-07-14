@@ -115,6 +115,22 @@ reply.writeNoException();
 reply.writeInt(_result);
 return true;
 }
+case TRANSACTION_getCurPlayMode:
+{
+data.enforceInterface(DESCRIPTOR);
+int _result = this.getCurPlayMode();
+reply.writeNoException();
+reply.writeInt(_result);
+return true;
+}
+case TRANSACTION_getCurPlayStatus:
+{
+data.enforceInterface(DESCRIPTOR);
+int _result = this.getCurPlayStatus();
+reply.writeNoException();
+reply.writeInt(_result);
+return true;
+}
 }
 return super.onTransact(code, data, reply, flags);
 }
@@ -273,6 +289,40 @@ _data.recycle();
 }
 return _result;
 }
+@Override public int getCurPlayMode() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_getCurPlayMode, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
+@Override public int getCurPlayStatus() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_getCurPlayStatus, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
 }
 static final int TRANSACTION_play = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 static final int TRANSACTION_pause = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
@@ -282,6 +332,8 @@ static final int TRANSACTION_setCurMusicList = (android.os.IBinder.FIRST_CALL_TR
 static final int TRANSACTION_setCurPlayIndex = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
 static final int TRANSACTION_registerListener = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
 static final int TRANSACTION_removeListener = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
+static final int TRANSACTION_getCurPlayMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
+static final int TRANSACTION_getCurPlayStatus = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
 }
 public int play() throws android.os.RemoteException;
 public int pause() throws android.os.RemoteException;
@@ -291,4 +343,6 @@ public int setCurMusicList(java.util.List<com.be02.aidl.MusicItem> list) throws 
 public int setCurPlayIndex(int index) throws android.os.RemoteException;
 public int registerListener(com.be02.aidl.IMusicListener listener) throws android.os.RemoteException;
 public int removeListener(com.be02.aidl.IMusicListener listener) throws android.os.RemoteException;
+public int getCurPlayMode() throws android.os.RemoteException;
+public int getCurPlayStatus() throws android.os.RemoteException;
 }
