@@ -15,7 +15,9 @@ import com.be02.aidl.IMusicService;
 import com.be02.data.MusicListItem;
 import com.be02.data.MusicLog;
 import com.be02.data.adapter.FolderListAdapter;
+import com.be02.musicplayer.fragment.FavoriteMusicFragment;
 import com.be02.musicplayer.fragment.LocalMusicFragment;
+import com.be02.musicplayer.fragment.NetMusicFragment;
 import com.be02.service.MusicServiceConnection;
 
 import android.content.Context;
@@ -26,9 +28,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * @author lz100
@@ -79,6 +86,17 @@ public class MusicListActivity extends FragmentActivity {
 	{
 		return mConnection.getMusicProxy();
 	}
+	
+	
+	private View getFooterView()
+	{
+		View view = LayoutInflater.from(this).inflate(R.layout.music_list_item, null);
+		ImageView image = (ImageView) view.findViewById(R.id.music_list_item_img);
+		TextView txt = (TextView) view.findViewById(R.id.music_list_item_txt);
+		image.setImageResource(R.drawable.adcx);
+		txt.setText(R.string.local_music_list);
+		return view;
+	}
 	private void initialize()
 	{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -88,6 +106,8 @@ public class MusicListActivity extends FragmentActivity {
 			initializeList();
 			mAdapter = new FolderListAdapter(this, mList);
 			mListView.setAdapter(mAdapter);
+			mListView.addFooterView(getFooterView());
+			mListView.setOnItemClickListener(mItemClickListener);
 		} else {
 			MusicLog.d(SUB_TAG + "initialize mListView == null");
 		}
@@ -107,13 +127,11 @@ public class MusicListActivity extends FragmentActivity {
 				getString(R.string.favorite_music_list));
 		MusicListItem item3 = new MusicListItem(R.drawable.net_music_list, 
 				getString(R.string.network_music_list));
-		MusicListItem item4 = new MusicListItem(R.drawable.adcx, 
-				getString(R.string.local_music_list));
+
 		if(mList != null) {
 			mList.add(item1);
 			mList.add(item2);
 			mList.add(item3);
-			mList.add(item4);
 		}
 
 	}
@@ -121,6 +139,8 @@ public class MusicListActivity extends FragmentActivity {
 	private void initializeFragment()
 	{
 		mLocalMusicFragment = new LocalMusicFragment();
+		mFavoriteMusicFragment = new FavoriteMusicFragment();
+		mNetMusicFragment = new NetMusicFragment();
 	}
 	
 	private void replaceFragment(Fragment fragment)
@@ -150,11 +170,36 @@ public class MusicListActivity extends FragmentActivity {
     	unbindService(mConnection);
     }
 	
+    
+    private OnItemClickListener mItemClickListener = new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int pos,long id) {
+			mAdapter.setSelectPos(pos);
+			switch (pos) {
+			case LOCAL_MUSIC_LIST:
+				replaceFragment(mLocalMusicFragment);
+				break;
+			case FAVORITE_MUSIC_LOST:
+				replaceFragment(mFavoriteMusicFragment);
+				break;
+			case NET_MUSIC_LIST:
+				replaceFragment(mNetMusicFragment);
+				break;
+			default: break;
+			}
+		}
+    	
+	};
+    
 	private ListView mListView;
 	private FolderListAdapter mAdapter;
 	private List<MusicListItem> mList;
-	private Fragment mLocalMusicFragment, mCurrentFragment = null;
+	private Fragment mLocalMusicFragment, mFavoriteMusicFragment, mNetMusicFragment,mCurrentFragment = null;
 	private final String SUB_TAG = MusicListActivity.class.toString() + " ";
 	private MusicServiceConnection mConnection = new MusicServiceConnection();
+	private final int LOCAL_MUSIC_LIST = 0;
+	private final int FAVORITE_MUSIC_LOST = 1;
+	private final int NET_MUSIC_LIST = 2;
 	
 }

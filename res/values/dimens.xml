@@ -11,7 +11,7 @@
     <dimen name="audio_height">210dp</dimen>
     <dimen name="audio_inside_width">125dp</dimen>
 	<dimen name="audio_inside_height">125dp</dimen>
-	<dimen name="audio_text_width">220dp</dimen>
+	<dimen name="audio_text_width">180dp</dimen>
 	<dimen name="audio_progress_width">400dp</dimen>
 	<dimen name="audio_padding_width">40dp</dimen>
 	<dimen name="local_music_progress_bar_text_size">18sp</dimen>

@@ -59,48 +59,31 @@ import android.widget.TextView;
     	// set Window feature must before setContentview , if after may catch exception.
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
-        
     	mMainReturn = (LinearLayout) findViewById(R.id.main_layout_return);
-    	if (mMainReturn != null) {
-    		mMainReturn.setOnClickListener(mListener);
-    	}
+    	mMainReturn.setOnClickListener(mListener);
     	mMainList = (LinearLayout) findViewById(R.id.main_layout_list);
-    	if (mMainList != null) {
-    		mMainList.setOnClickListener(mListener);
-    	}
+    	mMainList.setOnClickListener(mListener);
     	mFavorite = (LinearLayout) findViewById(R.id.main_layout_favorite);
-    	if (mFavorite != null) {
-    		mFavorite.setOnClickListener(mListener);
-    	}
+    	mFavorite.setOnClickListener(mListener);
     	mAudioSetting = (LinearLayout) findViewById(R.id.main_audio_setting);
-    	if (mAudioSetting != null) {
-    		mAudioSetting.setOnClickListener(mListener);
-    	}
-    	
+    	mAudioSetting.setOnClickListener(mListener);
     	mAudioPrevious = (LinearLayout) findViewById(R.id.main_audio_previous);
-    	if (mAudioPrevious != null) {
-    		mAudioPrevious.setOnClickListener(mListener);
-    	}
-    	
+    	mAudioPrevious.setOnClickListener(mListener);
     	mAudioPlay = (LinearLayout) findViewById(R.id.main_audio_play);
-    	if (mAudioPlay != null) {
-    		mAudioPlay.setOnClickListener(mListener);
-    	}
-    	
+    	mAudioPlay.setOnClickListener(mListener);
     	mAudioPlayNext = (LinearLayout) findViewById(R.id.main_audio_next);
-    	if (mAudioPlayNext != null) {
-    		mAudioPlayNext.setOnClickListener(mListener);
-    	}
-    	
+    	mAudioPlayNext.setOnClickListener(mListener);
     	mAudioCycleMode = (LinearLayout) findViewById(R.id.main_audio_cycle_mode);
-    	if (mAudioCycleMode != null) {
-    		mAudioCycleMode.setOnClickListener(mListener);
-    	}
+    	mAudioCycleMode.setOnClickListener(mListener);
     	mFavoriteImg = (ImageView) findViewById(R.id.main_favorite_image);
     	mAudioPlayImg = (ImageView) findViewById(R.id.main_audio_play_img);
+    	mAudioPlayStickImg = (ImageView) findViewById(R.id.main_audio_stick_img);
     	mSongName = (TextView) findViewById(R.id.main_song_name);
+    	mSongName.setSelected(true);
     	mSingerName = (TextView) findViewById(R.id.main_singer_name);
+    	mSingerName.setSelected(true);
     	mAlbumName = (TextView) findViewById(R.id.main_album_name);
+    	mAlbumName.setSelected(true);
     	mStartTime = (TextView) findViewById(R.id.main_start_time_txt);
     	mTotleTime = (TextView) findViewById(R.id.main_total_time_txt);
     	mSeekBar = (SeekBar) findViewById(R.id.main_seek_bar);
@@ -114,7 +97,6 @@ import android.widget.TextView;
     	intentStart.setAction(actionName);
     	intentStart.putExtra(MusicCmd.KEY, MusicCmd.PLAY);
     	startService(intentStart);
-    	
     	Intent intentBind = new Intent(actionName);
     	mConnection.setListener(mMusicServiceListener);
     	bindService(intentBind, mConnection, 0);
@@ -126,60 +108,55 @@ import android.widget.TextView;
     	unbindService(mConnection);
     }
     
-    private void updateText(Message msg)
+    private void updateText(MusicItem item)
     {
-		MusicItem item = (MusicItem)msg.obj;
     	if (item != null) {
 	    	mSongName.setText(item.getmTitle());
 	    	mAlbumName.setText(item.getmAblum());
 	    	mSingerName.setText(item.getmArtist());
 	    	mTotleTime.setText(MusicItem.converToStringTime(item.getmTime()));
-	    	//mSeekBar.setMax(item.getmTime());
     	} else {
     		mSongName.setText("");
     		mAlbumName.setText("");
     		mSingerName.setText("");
     		mTotleTime.setText(MusicItem.converToStringTime(0));
-    		//mSeekBar.setMax(0);
-    		
     	}
     }
-    private void updateTime(Message msg)
+    private void updateTime(int time)
     {
-    	int time = msg.arg1;
     	mStartTime.setText(MusicItem.converToStringTime(time));
     	mSeekBar.setProgress(time);
     }
     
-    private void updatePlayStatus(Message msg)
+    private void updatePlayStatus(int status)
     {
-    	int status = msg.arg1;
     	if (status == MusicService.MUSIC_PLAY) {
     		mAudioPlayImg.setImageResource(R.drawable.main_audio_play);
+    		mAudioPlayStickImg.setImageResource(R.drawable.audio_gan);
     	} else {
     		mAudioPlayImg.setImageResource(R.drawable.main_audio_pause);
+    		mAudioPlayStickImg.setImageResource(R.drawable.audio_gan_p);
     	}
     }
     
     private Handler mHandle = new Handler()
     {
-
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what)
 			{
 			case MusicListener.MSG_SONG_UPDATE:
-				updateText(msg);
+				updateText((MusicItem)msg.obj);
 				break;
 			case MusicListener.MSG_TIME_UPDATE:
-				updateTime(msg);
+				updateTime(msg.arg1);
 				break;
 			case MusicListener.MSG_DURATION_UPDATE:
 				mSeekBar.setMax(msg.arg1);
 				break;
 			case MusicListener.MSG_PLAY_STATUS_UPDATE:
-				updatePlayStatus(msg);
+				updatePlayStatus(msg.arg1);
 				break;
 			case MusicListener.MSG_PLAY_MODE_UPDATE:
 				
@@ -192,6 +169,20 @@ import android.widget.TextView;
     	
     };
     
+    
+    private void handleOnPlayerClick()
+    {
+    	try {
+			int status = mConnection.getMusicProxy().getCurPlayStatus();
+			if (status == MusicService.MUSIC_PLAY) {
+				mConnection.getMusicProxy().pause();
+			} else if (status == MusicService.MUSIC_PAUSE) {
+				mConnection.getMusicProxy().play();
+			} else {}
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
+		}
+    }
     private View.OnClickListener mListener = new View.OnClickListener() {
 		
 		@Override
@@ -218,18 +209,7 @@ import android.widget.TextView;
 				}
 				break;
 			case R.id.main_audio_play:
-				try {
-					int status = mConnection.getMusicProxy().getCurPlayStatus();
-					if (status == MusicService.MUSIC_PLAY) {
-						mConnection.getMusicProxy().pause();
-					} else if (status == MusicService.MUSIC_PAUSE) {
-						mConnection.getMusicProxy().play();
-					} else {
-						
-					}
-				} catch (RemoteException e1) {
-					e1.printStackTrace();
-				}
+				handleOnPlayerClick();
 				break;
 			case R.id.main_audio_next:
 				try {
@@ -254,7 +234,7 @@ import android.widget.TextView;
     private final String SUB_TAG = MainActivity.class.toString() + " ";
     private TextView mStartTime, mTotleTime;
     private SeekBar mSeekBar;
-    private ImageView mFavoriteImg, mAudioPlayImg;
+    ImageView mFavoriteImg, mAudioPlayImg, mAudioPlayStickImg;
     private LinearLayout mMainReturn, mMainList, mFavorite;
     private LinearLayout mAudioSetting, mAudioPrevious, mAudioPlay, mAudioPlayNext,mAudioCycleMode;
 }

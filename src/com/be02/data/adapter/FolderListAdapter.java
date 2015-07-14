@@ -59,25 +59,40 @@ public class FolderListAdapter extends BaseAdapter {
 		return id;
 	}
 
-	/* £¨·Ç Javadoc£©
-	 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-	 */
 	@Override
-	public View getView(int position, View v, ViewGroup g) {
+	public View getView(int position, View view, ViewGroup g) {
 		if (mContext == null) {
 			return null;
 		}
-		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		if (inflater != null) {
-			View view = inflater.inflate(R.layout.music_list_item, null);
-			ImageView image = (ImageView) view.findViewById(R.id.music_list_item_img);
-			image.setImageResource(getItem(position).getImageId());
-			TextView txt = (TextView) view.findViewById(R.id.music_list_item_txt);
-			txt.setText(getItem(position).getmName());
-			return view;
+		ViewHolder vh = null;
+		if (view == null) {
+			view = LayoutInflater.from(mContext).inflate(R.layout.music_list_item, g, false);
+			vh = new ViewHolder(view);
+			view.setTag(vh);
+		} else {
+			vh = (ViewHolder)view.getTag();
 		}
-		return null;
+		vh.mImage.setImageResource(getItem(position).getImageId());
+		vh.mTxt.setText(getItem(position).getmName());
+		if (position == mSelectPos) {
+			vh.mTxt.setTextColor(0xffff0000);
+		} else {
+			vh.mTxt.setTextColor(0xffffffff);
+		}
+		return view;
 	}
+
+	private class ViewHolder
+	{
+		ImageView mImage;
+		TextView mTxt;
+		public ViewHolder(View view)
+		{
+			mImage = (ImageView) view.findViewById(R.id.music_list_item_img);
+			mTxt = (TextView) view.findViewById(R.id.music_list_item_txt);
+		}
+	}
+
 
 	
 	public FolderListAdapter(Context mContext, List<MusicListItem> mList) {
@@ -86,7 +101,13 @@ public class FolderListAdapter extends BaseAdapter {
 		this.mList = mList;
 	}
 	
+	public void setSelectPos(int pos)
+	{
+		mSelectPos = pos;
+		notifyDataSetChanged();
+	}
+	
 	private Context mContext;
 	private List<MusicListItem> mList;
-	
+	private int mSelectPos = 0;
 }

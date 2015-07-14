@@ -80,6 +80,7 @@
 	                android:contentDescription="@string/default_image"/>
             
 	            <ImageView
+	                android:id="@+id/main_audio_stick_img"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
 	                android:layout_marginLeft="25dp"
@@ -173,29 +174,40 @@
 	    
 	   
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         
         >
-        
+        <View 
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            />
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_weight="2"
             android:id="@+id/main_audio_setting">
             
             <ImageView 
                 style="@style/AudioImageStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:src="@drawable/main_audio_setting"
                 android:contentDescription="@string/default_image"
                 />
         </LinearLayout>
-        
+        <View 
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/view_colour"
+            />
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:id="@+id/main_audio_previous"
@@ -206,13 +218,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/main_audio_previous"
+                android:layout_gravity="center"
                 android:contentDescription="@string/default_image"
                 />
             
         </LinearLayout>
-        
+        <View 
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/view_colour"
+            />
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:id="@+id/main_audio_play"
             android:orientation="vertical"
@@ -222,13 +240,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/AudioImageStyle"
+                android:layout_gravity="center"
                 android:src="@drawable/main_audio_play"
                 android:contentDescription="@string/default_image"
                 />
         </LinearLayout>
-        
+        <View 
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/view_colour"
+            />
         <LinearLayout 
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:id="@+id/main_audio_next"
             android:orientation="vertical"
@@ -236,14 +260,20 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 style="@style/AudioImageStyle"
                 android:src="@drawable/main_audio_next"
                 android:contentDescription="@string/default_image"
                 />
         </LinearLayout>
-        
+        <View 
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/view_colour"
+            />
         <LinearLayout 
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:id="@+id/main_audio_cycle_mode"
             android:orientation="vertical"
@@ -252,11 +282,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/liebiao_ri"
+                android:layout_gravity="center"
                 style="@style/AudioImageStyle"
                 android:contentDescription="@string/default_image"
                 />
         </LinearLayout>
-        
+        <View 
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            />
         
         
     </LinearLayout>

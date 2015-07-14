@@ -20,11 +20,12 @@
     <style name="AudioTextStyle">
         <item name="android:layout_width">@dimen/audio_text_width</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
         <item name="android:ellipsize">marquee</item>
+        <item name="android:gravity">center_vertical|left</item>
         <item name="android:marqueeRepeatLimit">marquee_forever</item>
         <item name="android:singleLine">true</item>
         <item name="android:scrollHorizontally">true</item>
-        <item name="android:layout_gravity">center_vertical|left</item>
         <item name="android:textColor">#ffff00</item>
         <item name="android:layout_marginTop">2dp</item>
     </style>

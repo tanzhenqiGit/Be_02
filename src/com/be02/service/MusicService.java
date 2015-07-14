@@ -76,7 +76,18 @@ public class MusicService extends Service {
 			Bundle bundle = intent.getExtras();
 			if ((bundle != null) && (MusicCmd.PLAY.equals(bundle.get(MusicCmd.KEY)))) {
 				MusicLog.d(SUB_TAG + "start need play");
-				play();
+				if (getPlayStatus() == MUSIC_PLAY || getPlayStatus() == MUSIC_PAUSE) {
+					updateCurPosition(0);
+					updatePlayDuration(mMediaPlayer.getDuration());
+					updateSongInfo(mCurMusicList.get(mCurPlayerIndex));
+					updatePlayStatus(getPlayStatus());
+					if (getPlayStatus() == MUSIC_PAUSE) {
+						MusicLog.d(SUB_TAG + "onStartCommand current is pause.");
+						play();
+					}
+				} else {
+					play();
+				}
 			}
 		}
 		return super.onStartCommand(intent, flags, startId);
@@ -292,6 +303,8 @@ public class MusicService extends Service {
 		if (mAudioManager == null) {	
 			MusicLog.e(SUB_TAG + "initialize mAudioManager == null , do nothing");
 		}
+		mCurMusicList = DBManager.getInstance(MusicApplication.getInstance()).getMusicList();
+		mCurPlayerIndex = 0;
 	}
 	
 	
@@ -391,9 +404,7 @@ public class MusicService extends Service {
 	
 	private void updateCurPosition(long delayMillis)
 	{
-		MusicItem item = mCurMusicList.get(mCurPlayerIndex);
-		MusicLog.d(SUB_TAG + "updateCurPosition time:" + MusicItem.converToStringTime(item.getmTime())
-				+ ",duration:"+  MusicItem.converToStringTime(mMediaPlayer.getDuration()));
+		MusicLog.d(SUB_TAG + "dalay=" + delayMillis);
 		if (mHandle != null) {
 			Message msg = mHandle.obtainMessage();
 			msg.what = MSG_PLAY_TIME_UPDATE;
@@ -407,6 +418,13 @@ public class MusicService extends Service {
 			updateCurPosition(1 * 1000);
 		}
 		int time =  mMediaPlayer.getCurrentPosition();
+		String sTime =  MusicItem.converToStringTime(time);
+		if (sTime.equals(mLastTime)) {
+			return;
+		}
+		mLastTime = sTime;
+		MusicLog.d(SUB_TAG + "updateCurPosition time:" + sTime
+				+ ",duration:"+  MusicItem.converToStringTime(mMediaPlayer.getDuration()));
 		for (MusicBinderListener l: mListeners) {
 			try {
 				l.mListener.onTimeChanged(time);
@@ -529,7 +547,7 @@ public class MusicService extends Service {
 	private AudioManager mAudioManager;
 	private List<MusicItem> mCurMusicList = null;
 	private int mCurPlayerIndex = 0;
-	
+	private String mLastTime = "";
 	
 	private final int MSG_SONG_INFO_CHANGED = 0x01;
 	private final int MSG_PLAY_TIME_UPDATE = 0x02;

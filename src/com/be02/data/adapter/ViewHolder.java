@@ -17,7 +17,7 @@ import com.be02.musicplayer.R;
 
 /**
  * @author lz100
- *
+ * used for adapter optimize listview.
  */
 final public class ViewHolder {
 		public TextView mMidArtist;
