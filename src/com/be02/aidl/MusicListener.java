@@ -23,6 +23,7 @@ public class MusicListener extends IMusicListener.Stub {
 	public final static int MSG_DURATION_UPDATE = 0x03;
 	public final static int MSG_PLAY_STATUS_UPDATE = 0X04;
 	public final static int MSG_PLAY_MODE_UPDATE = 0x05;
+	public final static int MSG_FAVORITE_STS_UPDATE = 0x06;
 	
 	public MusicListener(Handler handle)
 	{
@@ -78,5 +79,15 @@ public class MusicListener extends IMusicListener.Stub {
 		}
 	}
 	private Handler mHandle;
+
+	@Override
+	public void onFavoriteStsChaned(int status) throws RemoteException {
+		if (mHandle != null) {
+			Message msg = mHandle.obtainMessage();
+			msg.what = MSG_FAVORITE_STS_UPDATE;
+			msg.arg1 = status;
+			mHandle.sendMessage(msg);
+		}
+	}
 
 }

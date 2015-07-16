@@ -9,8 +9,10 @@ interface IMusicService
 	int pause();
 	int next();
 	int previous();
+	int seek(int position);
 	int setCurMusicList(out List<MusicItem> list);
 	int setCurPlayIndex(int index);
+	int setFavoriteStsChange();
 	int registerListener(IMusicListener listener);
 	int removeListener(IMusicListener listener);
 	int getCurPlayMode();

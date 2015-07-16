@@ -87,6 +87,7 @@ import android.widget.TextView;
     	mStartTime = (TextView) findViewById(R.id.main_start_time_txt);
     	mTotleTime = (TextView) findViewById(R.id.main_total_time_txt);
     	mSeekBar = (SeekBar) findViewById(R.id.main_seek_bar);
+    	mSeekBar.setOnSeekBarChangeListener(mSeekBarListener);
     	mMusicServiceListener = new MusicListener(mHandle);
     }
     
@@ -108,6 +109,15 @@ import android.widget.TextView;
     	unbindService(mConnection);
     }
     
+    private void updateFavoriteSts(int status)
+    {
+     	if (status == MusicItem.FAVORITE) {
+    		mFavoriteImg.setImageResource(R.drawable.favorite_u);
+    	} else {
+    		mFavoriteImg.setImageResource(R.drawable.favorite_d);
+    	}
+    }
+    
     private void updateText(MusicItem item)
     {
     	if (item != null) {
@@ -115,11 +125,13 @@ import android.widget.TextView;
 	    	mAlbumName.setText(item.getmAblum());
 	    	mSingerName.setText(item.getmArtist());
 	    	mTotleTime.setText(MusicItem.converToStringTime(item.getmTime()));
+	    	updateFavoriteSts(item.getIsFavorite());
     	} else {
     		mSongName.setText("");
     		mAlbumName.setText("");
     		mSingerName.setText("");
     		mTotleTime.setText(MusicItem.converToStringTime(0));
+    		mFavoriteImg.setImageResource(R.drawable.favorite_d);
     	}
     }
     private void updateTime(int time)
@@ -161,6 +173,9 @@ import android.widget.TextView;
 			case MusicListener.MSG_PLAY_MODE_UPDATE:
 				
 				break;
+			case MusicListener.MSG_FAVORITE_STS_UPDATE:
+				updateFavoriteSts(msg.arg1);
+				break;
 			default:
 				
 				break;
@@ -196,7 +211,11 @@ import android.widget.TextView;
 				startActivity(list);
 				break;
 			case R.id.main_layout_favorite:
-				
+				try {
+					mConnection.getMusicProxy().setFavoriteStsChange();
+				} catch (RemoteException e1) {
+					e1.printStackTrace();
+				}
 				break;
 			case R.id.main_audio_setting:
 				
@@ -227,6 +246,34 @@ import android.widget.TextView;
 			}
 		}
 	};
+	private SeekBar.OnSeekBarChangeListener mSeekBarListener = new SeekBar.OnSeekBarChangeListener()
+	{
+
+		@Override
+		public void onProgressChanged(SeekBar arg0, int position, boolean arg2) {
+			MusicLog.d(SUB_TAG + "position=" + position + ",arg2=" + arg2);
+		}
+
+		@Override
+		public void onStartTrackingTouch(SeekBar arg0) {
+
+		}
+
+		@Override
+		public void onStopTrackingTouch(SeekBar bar) {
+			MusicLog.d(SUB_TAG + "onStopTrackingTouch gress:" + bar.getProgress());
+			int progress = 0;
+			if (bar != null) {
+				progress = bar.getProgress();
+			}
+			try {
+				mConnection.getMusicProxy().seek(progress);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	};
 	
 	private MusicServiceConnection mConnection = new MusicServiceConnection();
 	private MusicListener mMusicServiceListener;
@@ -234,7 +281,7 @@ import android.widget.TextView;
     private final String SUB_TAG = MainActivity.class.toString() + " ";
     private TextView mStartTime, mTotleTime;
     private SeekBar mSeekBar;
-    ImageView mFavoriteImg, mAudioPlayImg, mAudioPlayStickImg;
+    private ImageView mFavoriteImg, mAudioPlayImg, mAudioPlayStickImg;
     private LinearLayout mMainReturn, mMainList, mFavorite;
     private LinearLayout mAudioSetting, mAudioPrevious, mAudioPlay, mAudioPlayNext,mAudioCycleMode;
 }

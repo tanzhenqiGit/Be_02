@@ -23,6 +23,7 @@ import com.be02.data.MusicApplication;
 import com.be02.data.MusicCmd;
 import com.be02.data.MusicLog;
 import com.be02.data.db.DBManager;
+import com.be02.data.db.DBMusicSQLite;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -54,6 +55,7 @@ public class MusicService extends Service {
 	@Override
 	protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
 		super.dump(fd, writer, args);
+		writer.println(MusicService.class.toString());
 	}
 
 	@Override
@@ -81,6 +83,7 @@ public class MusicService extends Service {
 					updatePlayDuration(mMediaPlayer.getDuration());
 					updateSongInfo(mCurMusicList.get(mCurPlayerIndex));
 					updatePlayStatus(getPlayStatus());
+					updatePlayMode(mCurPlayMode);
 					if (getPlayStatus() == MUSIC_PAUSE) {
 						MusicLog.d(SUB_TAG + "onStartCommand current is pause.");
 						play();
@@ -152,13 +155,40 @@ public class MusicService extends Service {
 	{
 		if (mCurMusicList == null) {
 			return ErrorCode.NullPointError;
-		} 
-		mCurPlayerIndex++;
-		if (mCurPlayerIndex == mCurMusicList.size()) {
-			mCurPlayerIndex = 0;
 		}
-		updatePlayStatus(MUSIC_COMPLETED);
-		play();
+		switch (mCurPlayMode) {
+		case MODE_ORDER_LOOP: 
+			mCurPlayerIndex++;
+			if (mCurPlayerIndex == mCurMusicList.size()) {
+				mCurPlayerIndex = 0;
+			}
+			updatePlayStatus(MUSIC_COMPLETED);
+			play();
+			break;
+		case MODE_SINGLE_LOOP: 
+			updatePlayStatus(MUSIC_COMPLETED);
+			play();
+			break;
+		case MODE_RANDOM_LOOP: 
+			mCurPlayerIndex = (int) (Math.random() * mCurMusicList.size());
+			updatePlayStatus(MUSIC_COMPLETED);
+			play();
+			break;
+		case MODE_LIST_LOOP: 
+			if (mCurPlayerIndex == mCurMusicList.size() - 1) {
+				pause();
+				mMediaPlayer.stop();
+				updatePlayStatus(MUSIC_COMPLETED);
+			} else {
+				mCurPlayerIndex++;
+				updatePlayStatus(MUSIC_COMPLETED);
+				play();
+			}
+			break;
+		default:break;
+		}
+
+		
 		return ErrorCode.NoError;
 	}
 	private int previous()
@@ -167,13 +197,37 @@ public class MusicService extends Service {
 		if (mCurMusicList == null) {
 			return ErrorCode.NullPointError;
 		} 
-	
-		if (mCurPlayerIndex == 0) {
-			mCurPlayerIndex = mCurMusicList.size() - 1;
+		switch (mCurPlayMode) {
+		case MODE_ORDER_LOOP: 
+			if (mCurPlayerIndex == 0) {
+				mCurPlayerIndex = mCurMusicList.size() - 1;
+			}
+			mCurPlayerIndex--;
+			updatePlayStatus(MUSIC_COMPLETED);
+			play();
+			break;
+		case MODE_SINGLE_LOOP: 
+			updatePlayStatus(MUSIC_COMPLETED);
+			play();
+			break;
+		case MODE_RANDOM_LOOP: 
+			mCurPlayerIndex = (int) (Math.random() * mCurMusicList.size());
+			updatePlayStatus(MUSIC_COMPLETED);
+			play();
+			break;
+		case MODE_LIST_LOOP: 
+			if (mCurPlayerIndex == 0) {
+				// do nothing
+			} else {
+				mCurPlayerIndex--;
+			}
+			updatePlayStatus(MUSIC_COMPLETED);
+			play();
+			break;
+		default:break;
 		}
-		mCurPlayerIndex--;
-		updatePlayStatus(MUSIC_COMPLETED);
-		play();
+		
+
 		return ErrorCode.NoError;
 		
 	}
@@ -272,7 +326,7 @@ public class MusicService extends Service {
 		}
 		@Override
 		public int getCurPlayMode() throws RemoteException {
-			return 0;
+			return mCurPlayMode;
 		}
 		@Override
 		public int getCurPlayStatus() throws RemoteException {
@@ -282,6 +336,29 @@ public class MusicService extends Service {
 			}
 			return ErrorCode.NullPointError;
 		}
+		@Override
+		public int seek(int position) throws RemoteException {
+			mMediaPlayer.seekTo(position);
+			return 0;
+		}
+		@Override
+		public int setFavoriteStsChange() throws RemoteException {
+			MusicItem item = mCurMusicList.get(mCurPlayerIndex);
+			int index = isFavoriteSong(item);
+			int status = MusicItem.NOT_FAVORITE;
+			if (index > 0) {
+				status = MusicItem.NOT_FAVORITE;
+				mFavoriteList.remove(index);
+				DBManager.getInstance(MusicApplication.getInstance()).delete(DBMusicSQLite.FAVORITE_LIST, item);
+			} else {
+				status = MusicItem.FAVORITE;
+				mFavoriteList.add(item);
+				DBManager.getInstance(MusicApplication.getInstance()).insert(item, DBMusicSQLite.FAVORITE_LIST);
+			}
+			updateFavoriteStatus(status);
+			return 0;
+		}
+	
 
 	}
 	
@@ -304,6 +381,7 @@ public class MusicService extends Service {
 			MusicLog.e(SUB_TAG + "initialize mAudioManager == null , do nothing");
 		}
 		mCurMusicList = DBManager.getInstance(MusicApplication.getInstance()).getMusicList();
+		mFavoriteList = DBManager.getInstance(MusicApplication.getInstance()).getFavoriteList();
 		mCurPlayerIndex = 0;
 	}
 	
@@ -381,8 +459,23 @@ public class MusicService extends Service {
 		}
 		private IMusicListener mListener;
 	}
+	
+	private int  isFavoriteSong(MusicItem item)
+	{
+		int ret = -1;
+		for (MusicItem i :mFavoriteList) {
+			ret++;
+			if (i.getmUri().equals(item.getmUri())) {
+				return ret;
+			}
+		}
+		return -1;
+	}
 	private void updateSongInfo(MusicItem item)
 	{
+		if (isFavoriteSong(item) > 0) {
+			item.setFavoriteSong(MusicItem.FAVORITE);
+		}
 		if (mHandle != null) {
 			Message msg = mHandle.obtainMessage();
 			msg.what = MSG_SONG_INFO_CHANGED;
@@ -404,7 +497,7 @@ public class MusicService extends Service {
 	
 	private void updateCurPosition(long delayMillis)
 	{
-		MusicLog.d(SUB_TAG + "dalay=" + delayMillis);
+		//MusicLog.d(SUB_TAG + "dalay=" + delayMillis);
 		if (mHandle != null) {
 			Message msg = mHandle.obtainMessage();
 			msg.what = MSG_PLAY_TIME_UPDATE;
@@ -439,16 +532,13 @@ public class MusicService extends Service {
 		if (status == MUSIC_PLAY) {
 			updateCurPosition(0);
 		}
-		
-		if (mPlayStatus != status) {
 	
-			mPlayStatus = status;
-			if (mHandle != null) {
-				Message msg = mHandle.obtainMessage();
-				msg.what = MSG_PLAY_STATUS_CHANGED;
-				msg.arg1 = status;
-				mHandle.sendMessage(msg);
-			}
+		mPlayStatus = status;
+		if (mHandle != null) {
+			Message msg = mHandle.obtainMessage();
+			msg.what = MSG_PLAY_STATUS_CHANGED;
+			msg.arg1 = status;
+			mHandle.sendMessage(msg);
 		}
 	}
 	
@@ -488,6 +578,7 @@ public class MusicService extends Service {
 	
 	private void updatePlayMode(int mode)
 	{
+		mCurPlayMode = mode;
 		if (mHandle != null) {
 			Message msg = mHandle.obtainMessage();
 			msg.what = MSG_PLAY_MODE_CHANGED;
@@ -507,6 +598,29 @@ public class MusicService extends Service {
 			}
 		}
 	}
+	
+	private void updateFavoriteStatus(int status)
+	{
+		if (mHandle != null) {
+			Message msg = mHandle.obtainMessage();
+			msg.what = MSG_FAVORITE_STATUS_CHANGED;
+			msg.arg1 = status;
+			mHandle.sendMessage(msg);
+		}
+	}
+	
+	private void onFavoriteStsChanged(Message msg)
+	{
+		int status = msg.arg1;
+		for (MusicBinderListener l: mListeners) {
+			try {
+				l.mListener.onFavoriteStsChaned(status);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	@SuppressLint("HandlerLeak") private Handler mHandle = new Handler()
 	{
 		@Override
@@ -528,6 +642,9 @@ public class MusicService extends Service {
 			case MSG_PLAY_MODE_CHANGED:
 				onPlayModeChanged(msg);
 				break;
+			case MSG_FAVORITE_STATUS_CHANGED:
+				onFavoriteStsChanged(msg);
+				break;
 			default: break;
 			}
 		}
@@ -546,6 +663,7 @@ public class MusicService extends Service {
 	private MediaPlayer mMediaPlayer;
 	private AudioManager mAudioManager;
 	private List<MusicItem> mCurMusicList = null;
+	private List<MusicItem> mFavoriteList = null;
 	private int mCurPlayerIndex = 0;
 	private String mLastTime = "";
 	
@@ -554,7 +672,7 @@ public class MusicService extends Service {
 	private final int MSG_PLAY_MODE_CHANGED = 0x03;
 	private final int MSG_PLAY_STATUS_CHANGED = 0x04;
 	private final int MSG_PLAY_DURATION_CHANGED = 0x05;
-	
+	private final int MSG_FAVORITE_STATUS_CHANGED = 0x06;
 	/**
 	 * define music play status
 	 */
@@ -564,7 +682,7 @@ public class MusicService extends Service {
 	public final static int MUSIC_COMPLETED = 2;
 	public final static int MUSIC_ERROR = 3;
 	public final static int MUSIC_UNKNOW = 10;
-	private int mPlayStatus = MUSIC_UNKNOW;
+	private int mPlayStatus = MUSIC_PLAY;
 	
 	/**
 	 * define music play mode type
@@ -573,5 +691,7 @@ public class MusicService extends Service {
 	public final static int MODE_SINGLE_LOOP = 1;
 	public final static int MODE_RANDOM_LOOP = 2;
 	public final static int MODE_LIST_LOOP = 4;
+	public final static int MODE_UNKNOW = 10;
+	private int mCurPlayMode = MODE_ORDER_LOOP;
 	
 }

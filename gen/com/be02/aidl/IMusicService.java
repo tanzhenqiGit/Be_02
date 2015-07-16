@@ -74,6 +74,16 @@ reply.writeNoException();
 reply.writeInt(_result);
 return true;
 }
+case TRANSACTION_seek:
+{
+data.enforceInterface(DESCRIPTOR);
+int _arg0;
+_arg0 = data.readInt();
+int _result = this.seek(_arg0);
+reply.writeNoException();
+reply.writeInt(_result);
+return true;
+}
 case TRANSACTION_setCurMusicList:
 {
 data.enforceInterface(DESCRIPTOR);
@@ -91,6 +101,14 @@ data.enforceInterface(DESCRIPTOR);
 int _arg0;
 _arg0 = data.readInt();
 int _result = this.setCurPlayIndex(_arg0);
+reply.writeNoException();
+reply.writeInt(_result);
+return true;
+}
+case TRANSACTION_setFavoriteStsChange:
+{
+data.enforceInterface(DESCRIPTOR);
+int _result = this.setFavoriteStsChange();
 reply.writeNoException();
 reply.writeInt(_result);
 return true;
@@ -217,6 +235,24 @@ _data.recycle();
 }
 return _result;
 }
+@Override public int seek(int position) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeInt(position);
+mRemote.transact(Stub.TRANSACTION_seek, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
 @Override public int setCurMusicList(java.util.List<com.be02.aidl.MusicItem> list) throws android.os.RemoteException
 {
 android.os.Parcel _data = android.os.Parcel.obtain();
@@ -244,6 +280,23 @@ try {
 _data.writeInterfaceToken(DESCRIPTOR);
 _data.writeInt(index);
 mRemote.transact(Stub.TRANSACTION_setCurPlayIndex, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
+@Override public int setFavoriteStsChange() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_setFavoriteStsChange, _data, _reply, 0);
 _reply.readException();
 _result = _reply.readInt();
 }
@@ -328,19 +381,23 @@ static final int TRANSACTION_play = (android.os.IBinder.FIRST_CALL_TRANSACTION +
 static final int TRANSACTION_pause = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
 static final int TRANSACTION_next = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
 static final int TRANSACTION_previous = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
-static final int TRANSACTION_setCurMusicList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
-static final int TRANSACTION_setCurPlayIndex = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
-static final int TRANSACTION_registerListener = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
-static final int TRANSACTION_removeListener = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
-static final int TRANSACTION_getCurPlayMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
-static final int TRANSACTION_getCurPlayStatus = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
+static final int TRANSACTION_seek = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
+static final int TRANSACTION_setCurMusicList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
+static final int TRANSACTION_setCurPlayIndex = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
+static final int TRANSACTION_setFavoriteStsChange = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
+static final int TRANSACTION_registerListener = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
+static final int TRANSACTION_removeListener = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
+static final int TRANSACTION_getCurPlayMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 10);
+static final int TRANSACTION_getCurPlayStatus = (android.os.IBinder.FIRST_CALL_TRANSACTION + 11);
 }
 public int play() throws android.os.RemoteException;
 public int pause() throws android.os.RemoteException;
 public int next() throws android.os.RemoteException;
 public int previous() throws android.os.RemoteException;
+public int seek(int position) throws android.os.RemoteException;
 public int setCurMusicList(java.util.List<com.be02.aidl.MusicItem> list) throws android.os.RemoteException;
 public int setCurPlayIndex(int index) throws android.os.RemoteException;
+public int setFavoriteStsChange() throws android.os.RemoteException;
 public int registerListener(com.be02.aidl.IMusicListener listener) throws android.os.RemoteException;
 public int removeListener(com.be02.aidl.IMusicListener listener) throws android.os.RemoteException;
 public int getCurPlayMode() throws android.os.RemoteException;

@@ -32,6 +32,7 @@ public class MusicItem implements Parcelable {
 		this.mUri = mUri;
 		this.mSize = mSize;
 		this.mTime = mTime;
+		this.mIsFavorite = NOT_FAVORITE;
 		//print();
 	}
 	public MusicItem() {}
@@ -45,6 +46,7 @@ public class MusicItem implements Parcelable {
 		mUri = parcel.readString();
 		mSize = parcel.readInt();
 		mTime = parcel.readInt();
+		mIsFavorite = parcel.readInt();
 
 	}
 	
@@ -90,7 +92,14 @@ public class MusicItem implements Parcelable {
 	public void setmTime(int mTime) {
 		this.mTime = mTime;
 	}
-	
+	public int getIsFavorite()
+	{
+		return mIsFavorite;
+	}
+	public void setFavoriteSong(int isFavorite)
+	{
+		mIsFavorite = isFavorite;
+	}
 	
 	@SuppressLint("DefaultLocale") public static String converToStringTime(int time) 
 	{
@@ -101,7 +110,14 @@ public class MusicItem implements Parcelable {
 		int second = time % 60;
 		
 		if (hor > 0) {
-			return String.format("%02:%02d:%02d", hor, min, second);
+			if (hor < 99) {
+				return String.format("%02d:%02d:%02d", hor, min, second);
+			} else if (hor < 999) {
+				return String.format("%03d:%02d:%02d", hor, min, second);
+			} else {
+				MusicLog.d("MusicItem + error");
+				return "error";
+			}
 		}  else {
 			return String.format("%02d:%02d", min, second);
 		}
@@ -134,6 +150,7 @@ public class MusicItem implements Parcelable {
 		parcel.writeString(mUri);
 		parcel.writeInt(mSize);
 		parcel.writeInt(mTime);
+		parcel.writeInt(mIsFavorite);
 	}
 	
     public static final Parcelable.Creator<MusicItem> CREATOR = new Parcelable.Creator<MusicItem>() { 
@@ -157,6 +174,9 @@ public class MusicItem implements Parcelable {
 	private String mUri;
 	private int mSize;
 	private int mTime;
+	private int mIsFavorite;
+	public final static int NOT_FAVORITE = 0;
+	public final static int FAVORITE = 1;
 	
 	
 }

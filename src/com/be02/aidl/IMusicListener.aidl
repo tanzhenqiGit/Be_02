@@ -9,4 +9,5 @@ oneway interface IMusicListener
     void onDurationChanged(int duration);
     void onPlayStatusChanged(int status);
     void onPlayModeChanged(int mode);
+    void onFavoriteStsChaned(int status);
 }

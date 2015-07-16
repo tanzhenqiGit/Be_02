@@ -87,8 +87,7 @@ public class LocalMusicAlbumFragment extends Fragment {
 	}
 
 	private View mView;
-	private final String SUB_TAG = LocalMusicAlbumFragment.class.toString()
-			+ " ";
+	private final String SUB_TAG = LocalMusicAlbumFragment.class.toString() + " ";
 	private ListView mListView;
 	private List<AlbumListItem> mListData;
 	private AlbumListAdapter mAdapter;
