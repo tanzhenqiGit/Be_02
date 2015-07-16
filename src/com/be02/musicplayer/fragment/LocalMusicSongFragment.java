@@ -148,7 +148,7 @@ public class LocalMusicSongFragment extends Fragment{
 		
 	};
 	
-	private final String SUB_TAG = LocalMusicFragment.class.toString() + " ";
+	private final String SUB_TAG = "LocalMusicSongFragment ";
 	private View mView;
 	private ListView mListView;
 	private MusicListAdapter mAapter;

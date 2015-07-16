@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.be02.aidl.MusicItem;
+import com.be02.aidl.MusicListItem;
 import com.be02.data.AlbumListItem;
 import com.be02.data.MusicLog;
 import com.be02.musicplayer.R;
@@ -72,6 +73,7 @@ public final class DBManager {
 		mArtistList = new ArrayList<String>();
 		mAlbumList = new ArrayList<AlbumListItem>();
 		mFavoriteList = new ArrayList<MusicItem>();
+		mLocalList = new ArrayList<MusicListItem>();
 		mHelper = new DBMusicSQLite(mContext, DBMusicSQLite.SQL_NAME, null, mVersion);
 		updateList();
 	}
@@ -84,6 +86,7 @@ public final class DBManager {
 				upateArtistList();
 				updateAblumList();
 				updateFavoriteList();
+				updateLocalList();
 			}
 		}).start();
 	}
@@ -197,7 +200,7 @@ public final class DBManager {
 	{
 		SQLiteDatabase db = mHelper.getWritableDatabase();
 		if (db != null && item != null) {
-			db.delete(DBMusicSQLite.TABLE_NAME,
+			db.delete(DBMusicSQLite.TABLE_NAME_MUSIC_INFO,
 					DBMusicSQLite.URI + " = ? AND " + DBMusicSQLite.LIST_NAME + " = ? ", 
 					new String[]{item.getmUri(), listName});
 		}
@@ -209,7 +212,7 @@ public final class DBManager {
 		if (isMusicItemExist(db, item)) {
 			update(item, listName);
 		} else {
-			db.insert(DBMusicSQLite.TABLE_NAME, null, parserContentValues(item,listName));
+			db.insert(DBMusicSQLite.TABLE_NAME_MUSIC_INFO, null, parserContentValues(item,listName));
 		}
 	}
 	
@@ -217,7 +220,7 @@ public final class DBManager {
 	{
 		SQLiteDatabase db = mHelper.getWritableDatabase();
 		if (db != null && item != null) {
-			db.update(DBMusicSQLite.TABLE_NAME, parserContentValues(item, listName), 
+			db.update(DBMusicSQLite.TABLE_NAME_MUSIC_INFO, parserContentValues(item, listName), 
 				DBMusicSQLite.URI + " = ? ", 
 				new String[] {item.getmUri()});
 		}
@@ -242,11 +245,15 @@ public final class DBManager {
 		if (db == null || item == null) {
 			return false;
 		}
-		Cursor cursor = db.query(DBMusicSQLite.TABLE_NAME,
+		Cursor cursor = db.query(DBMusicSQLite.TABLE_NAME_MUSIC_INFO,
 				null , DBMusicSQLite.URI + " = ? ", 
 				new String[]{item.getmUri()}, null, null, null);
-		if (cursor != null && cursor.getCount() > 0) {
-			return true;
+		if (cursor != null) {
+			if (cursor.getCount() > 0) {
+				cursor.close();
+				return true;
+			}
+			cursor.close();
 		}
 		return false;
 		
@@ -257,7 +264,7 @@ public final class DBManager {
 		SQLiteDatabase db = mHelper.getReadableDatabase();
 		Cursor cursor = null;
 		if (db != null) {
-			cursor = db.query(DBMusicSQLite.TABLE_NAME,
+			cursor = db.query(DBMusicSQLite.TABLE_NAME_MUSIC_INFO,
 					new String[] {
 					DBMusicSQLite.TITEL,
 					DBMusicSQLite.ARTIST,
@@ -281,6 +288,10 @@ public final class DBManager {
 		mFavoriteList = converToList(query(DBMusicSQLite.FAVORITE_LIST));
 	}
 	
+	public void updateLocalList()
+	{
+		mLocalList = convertToLocalList(LocalListQuery());
+	}
 	private List<MusicItem> converToList(Cursor cursor)
 	{
 		if (cursor == null) {
@@ -341,6 +352,109 @@ public final class DBManager {
 		}
 	}
 	
+	public List<MusicItem> getAlbumList(String album)
+	{
+		List<MusicItem> list = new ArrayList<MusicItem>();
+		for(MusicItem i : mMusicList) {
+			if (i.getmAblum().equals(album)) {
+				list.add(i);
+			}
+		}
+		return list;
+	}
+	
+	public List<MusicItem> getArtistList(String artist)
+	{
+		List<MusicItem> list = new ArrayList<MusicItem>();
+		for(MusicItem i : mMusicList) {
+			if (i.getmArtist().equals(artist)) {
+				list.add(i);
+			}
+		}
+		return list;
+	}
+	
+	
+	public List<MusicListItem> getLocalList()
+	{
+		return mLocalList;
+	}
+	
+	public void LocalListInsert(MusicListItem item)
+	{
+		SQLiteDatabase db = mHelper.getWritableDatabase();
+		if (isLocalListItemExist(db, item)) {
+			db.update(DBMusicSQLite.TABLE_NAME_LOCAL_LIST,
+					parserToLocal(item), 
+					DBMusicSQLite.LIST_NAME + " = ? ", 
+					new String[]{item.getmName()});
+		} else {
+			db.insert(DBMusicSQLite.TABLE_NAME_LOCAL_LIST, null, parserToLocal(item));
+		}
+	}
+	
+	private ContentValues parserToLocal(MusicListItem item) {
+		ContentValues cv = new ContentValues();
+		cv.put(DBMusicSQLite.LIST_NAME, item.getmName());
+		cv.put(DBMusicSQLite.IMGID, item.getImageId());
+		return cv;
+	}
+	
+	private boolean isLocalListItemExist(SQLiteDatabase db, MusicListItem item)
+	{
+		Cursor cursor = db.query(DBMusicSQLite.TABLE_NAME_LOCAL_LIST, 
+				null, 
+				DBMusicSQLite.LIST_NAME + " = ? ", 
+				new String[]{item.getmName()}, 
+				null, 
+				null, 
+				null);
+		if (cursor != null) {
+			if (cursor.getCount() > 0) {
+				cursor.close();
+				return true;
+			}
+			cursor.close();
+		}
+		return false;
+	}
+	
+	public void LocalListDelete(MusicListItem item) 
+	{
+		SQLiteDatabase db = mHelper.getWritableDatabase();
+		db.delete(DBMusicSQLite.TABLE_NAME_LOCAL_LIST,
+				DBMusicSQLite.LIST_NAME + " = ? ",
+				new String[]{item.getmName()});
+	}
+
+	
+	public Cursor LocalListQuery()
+	{
+		SQLiteDatabase db = mHelper.getReadableDatabase();
+		Cursor cursor = db.query(DBMusicSQLite.TABLE_NAME_LOCAL_LIST, 
+				new String[]{
+				DBMusicSQLite.LIST_NAME,
+				DBMusicSQLite.IMGID,},
+				null,null, null, null, null);
+		return cursor;
+	}
+	
+	private List<MusicListItem> convertToLocalList(Cursor cursor)
+	{
+		List<MusicListItem> list = new ArrayList<MusicListItem>();
+		if (cursor == null || cursor.getCount() == 0) {
+			return list;
+		}
+		cursor.moveToFirst();
+		do {
+			String name = cursor.getString(cursor.getColumnIndex(DBMusicSQLite.LIST_NAME));
+			int imageId = cursor.getInt(cursor.getColumnIndex(DBMusicSQLite.IMGID));
+		    MusicListItem item = new MusicListItem(imageId, name);
+		    list.add(item);
+		} while (cursor.moveToNext());
+		
+		return list;
+	}
 	
 	private static DBManager mDBMgr = null;
 	private ContentResolver mContentResolver;
@@ -348,6 +462,7 @@ public final class DBManager {
 	private List<MusicItem> mMusicList;
 	private List<String> mArtistList;
 	private List<AlbumListItem> mAlbumList;
+	private List<MusicListItem> mLocalList;
 	private Object mCurMusicListLock = new Object();
 	private List<MusicItem> mCurMusicList;
 	private Context mContext;

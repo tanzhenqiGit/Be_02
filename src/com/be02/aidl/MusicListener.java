@@ -24,6 +24,7 @@ public class MusicListener extends IMusicListener.Stub {
 	public final static int MSG_PLAY_STATUS_UPDATE = 0X04;
 	public final static int MSG_PLAY_MODE_UPDATE = 0x05;
 	public final static int MSG_FAVORITE_STS_UPDATE = 0x06;
+	public final static int MSG_LOCAL_LIST_UPDATE = 0x07;
 	
 	public MusicListener(Handler handle)
 	{
@@ -86,6 +87,14 @@ public class MusicListener extends IMusicListener.Stub {
 			Message msg = mHandle.obtainMessage();
 			msg.what = MSG_FAVORITE_STS_UPDATE;
 			msg.arg1 = status;
+			mHandle.sendMessage(msg);
+		}
+	}
+	@Override
+	public void onLocalListChanged() throws RemoteException {
+		if (mHandle != null) {
+			Message msg = mHandle.obtainMessage();
+			msg.what = MSG_LOCAL_LIST_UPDATE;
 			mHandle.sendMessage(msg);
 		}
 	}

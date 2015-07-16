@@ -35,7 +35,8 @@ public class DBMusicSQLite extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		if (db != null) {
-			db.execSQL(CREATE_TABLE_MUSIC_LIST);
+			db.execSQL(CREATE_TABLE_MUSIC);
+			db.execSQL(CREATE_TABLE_LOCAL_LIST);
 			MusicLog.d(SUB_TAG + "onCreate");
 		}
 	}
@@ -47,9 +48,19 @@ public class DBMusicSQLite extends SQLiteOpenHelper {
 
 
 	public static String SQL_NAME = "MusicListInfo.db";
-	public static String TABLE_NAME = "music_list";
+	/**
+	 * table music infor name
+	 */
+	public static String TABLE_NAME_MUSIC_INFO = "musicInfo";
+	/**
+	 * id just for record
+	 */
 	public static String ID = "_id";
+	/**
+	 * list name save song in which lsit
+	 */
 	public static String LIST_NAME = "list_name";
+	
 	public static String TITEL = "title";
 	public static String ARTIST = "artist";
 	public static String ALBUM = "album";
@@ -58,16 +69,31 @@ public class DBMusicSQLite extends SQLiteOpenHelper {
 	public static String SIZE = "size";
 	public static String TIME = "time";
 	public static String FAVORITE_LIST = "favorite_list";
-	
-	private String CREATE_TABLE_MUSIC_LIST ="CREATE TABLE "
-			+ TABLE_NAME + "(_id INTEGER primary key AUTOINCREMENT,"
-			+ LIST_NAME  + " TEXT,"
-			+ TITEL      + " TEXT,"
-			+ ARTIST     + " TEXT,"
-			+ ALBUM      + " TEXT,"
-			+ URI        + " TEXT,"
-			+ DISPLAY    + " TEXT,"
-			+ SIZE       + " INTEGER,"
-			+ TIME       + " INTEGER)";
 	private final String SUB_TAG = "DBMusicSQLite"; 
+	/**
+	 * table music infor user to save favorite or local list's song info
+	 */
+	private String CREATE_TABLE_MUSIC ="CREATE TABLE "
+			+ TABLE_NAME_MUSIC_INFO + "("
+			+ ID		            + " INTEGER primary key AUTOINCREMENT,"
+			+ LIST_NAME             + " TEXT,"
+			+ TITEL                 + " TEXT,"
+			+ ARTIST                + " TEXT,"
+			+ ALBUM                 + " TEXT,"
+			+ URI                   + " TEXT,"
+			+ DISPLAY               + " TEXT,"
+			+ SIZE                  + " INTEGER,"
+			+ TIME                  + " INTEGER)";
+	
+	/**
+	 * table local music used for save user new local fold
+	 */
+	public static String TABLE_NAME_LOCAL_LIST = "localListInfo";
+	public static String IMGID = "imageId";
+	private String CREATE_TABLE_LOCAL_LIST = "CREATE TABLE "
+			+ TABLE_NAME_LOCAL_LIST + "("
+			+ ID		            + " INTEGER primary key AUTOINCREMENT,"
+			+ IMGID                 + " INTEGER,"
+			+ LIST_NAME             + " TEXT)";
+
 }

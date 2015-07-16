@@ -18,6 +18,7 @@ import java.util.List;
 import com.be02.aidl.IMusicListener;
 import com.be02.aidl.IMusicService;
 import com.be02.aidl.MusicItem;
+import com.be02.aidl.MusicListItem;
 import com.be02.data.ErrorCode;
 import com.be02.data.MusicApplication;
 import com.be02.data.MusicCmd;
@@ -322,7 +323,7 @@ public class MusicService extends Service {
 					break;
 				}
 			}
-			return 0;
+			return ErrorCode.NoError;
 		}
 		@Override
 		public int getCurPlayMode() throws RemoteException {
@@ -339,14 +340,15 @@ public class MusicService extends Service {
 		@Override
 		public int seek(int position) throws RemoteException {
 			mMediaPlayer.seekTo(position);
-			return 0;
+			return ErrorCode.NoError;
 		}
 		@Override
 		public int setFavoriteStsChange() throws RemoteException {
 			MusicItem item = mCurMusicList.get(mCurPlayerIndex);
 			int index = isFavoriteSong(item);
 			int status = MusicItem.NOT_FAVORITE;
-			if (index > 0) {
+			MusicLog.d(SUB_TAG + "setFavoriteStsChange index=" + index);
+			if (index >= 0) {
 				status = MusicItem.NOT_FAVORITE;
 				mFavoriteList.remove(index);
 				DBManager.getInstance(MusicApplication.getInstance()).delete(DBMusicSQLite.FAVORITE_LIST, item);
@@ -355,11 +357,35 @@ public class MusicService extends Service {
 				mFavoriteList.add(item);
 				DBManager.getInstance(MusicApplication.getInstance()).insert(item, DBMusicSQLite.FAVORITE_LIST);
 			}
+			MusicLog.d(SUB_TAG + "status = " + status);
 			updateFavoriteStatus(status);
-			return 0;
+			
+			return ErrorCode.NoError;
 		}
-	
-
+		@Override
+		public int addLocalList(MusicListItem item) throws RemoteException {
+			if (item == null) {
+				return ErrorCode.NullPointError;
+			}
+			if (!mLocalList.contains(item)) {
+				DBManager.getInstance(MusicApplication.getInstance()).LocalListInsert(item);
+				updateLocalList();
+				mLocalList.add(item);
+			}
+			return ErrorCode.NoError;
+		}
+		@Override
+		public int deleteLocalList(MusicListItem item) throws RemoteException {
+			MusicLog.d(SUB_TAG + "deleteLocalList item " + item.getmName() + "size:" + mLocalList.size());
+			if (mLocalList.contains(item)) {
+				mLocalList.remove(item);
+				DBManager.getInstance(MusicApplication.getInstance()).LocalListDelete(item);
+				updateLocalList();
+			} else {
+				MusicLog.d(SUB_TAG + "deleteLocalList item not contained");
+			}
+			return ErrorCode.NoError;
+		}
 	}
 	
 	
@@ -382,6 +408,7 @@ public class MusicService extends Service {
 		}
 		mCurMusicList = DBManager.getInstance(MusicApplication.getInstance()).getMusicList();
 		mFavoriteList = DBManager.getInstance(MusicApplication.getInstance()).getFavoriteList();
+		mLocalList = DBManager.getInstance(MusicApplication.getInstance()).getLocalList();
 		mCurPlayerIndex = 0;
 	}
 	
@@ -463,13 +490,14 @@ public class MusicService extends Service {
 	private int  isFavoriteSong(MusicItem item)
 	{
 		int ret = -1;
-		for (MusicItem i :mFavoriteList) {
-			ret++;
+		for (int index = 0; index < mFavoriteList.size(); index++) {
+			MusicItem i = mFavoriteList.get(index);
 			if (i.getmUri().equals(item.getmUri())) {
-				return ret;
+				ret = index;
+				break;
 			}
 		}
-		return -1;
+		return ret;
 	}
 	private void updateSongInfo(MusicItem item)
 	{
@@ -516,8 +544,8 @@ public class MusicService extends Service {
 			return;
 		}
 		mLastTime = sTime;
-		MusicLog.d(SUB_TAG + "updateCurPosition time:" + sTime
-				+ ",duration:"+  MusicItem.converToStringTime(mMediaPlayer.getDuration()));
+		//MusicLog.d(SUB_TAG + "updateCurPosition time:" + sTime
+			//	+ ",duration:"+  MusicItem.converToStringTime(mMediaPlayer.getDuration()));
 		for (MusicBinderListener l: mListeners) {
 			try {
 				l.mListener.onTimeChanged(time);
@@ -620,6 +648,23 @@ public class MusicService extends Service {
 			}
 		}
 	}
+	private void updateLocalList()
+	{
+		if (mHandle != null) {
+			mHandle.sendEmptyMessage(MSG_LOCAL_LIST_CHANGED);
+		}
+	}
+	
+	private void onLocalListChanged()
+	{
+		for (MusicBinderListener l: mListeners) {
+			try {
+				l.mListener.onLocalListChanged();
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	@SuppressLint("HandlerLeak") private Handler mHandle = new Handler()
 	{
@@ -645,6 +690,9 @@ public class MusicService extends Service {
 			case MSG_FAVORITE_STATUS_CHANGED:
 				onFavoriteStsChanged(msg);
 				break;
+			case MSG_LOCAL_LIST_CHANGED:
+				onLocalListChanged();
+				break;
 			default: break;
 			}
 		}
@@ -664,6 +712,7 @@ public class MusicService extends Service {
 	private AudioManager mAudioManager;
 	private List<MusicItem> mCurMusicList = null;
 	private List<MusicItem> mFavoriteList = null;
+	private List<MusicListItem> mLocalList = null;
 	private int mCurPlayerIndex = 0;
 	private String mLastTime = "";
 	
@@ -673,6 +722,7 @@ public class MusicService extends Service {
 	private final int MSG_PLAY_STATUS_CHANGED = 0x04;
 	private final int MSG_PLAY_DURATION_CHANGED = 0x05;
 	private final int MSG_FAVORITE_STATUS_CHANGED = 0x06;
+	private final int MSG_LOCAL_LIST_CHANGED = 0x07;
 	/**
 	 * define music play status
 	 */

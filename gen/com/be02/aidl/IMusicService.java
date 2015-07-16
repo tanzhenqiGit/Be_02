@@ -149,6 +149,40 @@ reply.writeNoException();
 reply.writeInt(_result);
 return true;
 }
+case TRANSACTION_addLocalList:
+{
+data.enforceInterface(DESCRIPTOR);
+com.be02.aidl.MusicListItem _arg0;
+_arg0 = new com.be02.aidl.MusicListItem();
+int _result = this.addLocalList(_arg0);
+reply.writeNoException();
+reply.writeInt(_result);
+if ((_arg0!=null)) {
+reply.writeInt(1);
+_arg0.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
+}
+else {
+reply.writeInt(0);
+}
+return true;
+}
+case TRANSACTION_deleteLocalList:
+{
+data.enforceInterface(DESCRIPTOR);
+com.be02.aidl.MusicListItem _arg0;
+_arg0 = new com.be02.aidl.MusicListItem();
+int _result = this.deleteLocalList(_arg0);
+reply.writeNoException();
+reply.writeInt(_result);
+if ((_arg0!=null)) {
+reply.writeInt(1);
+_arg0.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
+}
+else {
+reply.writeInt(0);
+}
+return true;
+}
 }
 return super.onTransact(code, data, reply, flags);
 }
@@ -376,6 +410,46 @@ _data.recycle();
 }
 return _result;
 }
+@Override public int addLocalList(com.be02.aidl.MusicListItem item) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_addLocalList, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+if ((0!=_reply.readInt())) {
+item.readFromParcel(_reply);
+}
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
+@Override public int deleteLocalList(com.be02.aidl.MusicListItem item) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_deleteLocalList, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+if ((0!=_reply.readInt())) {
+item.readFromParcel(_reply);
+}
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
 }
 static final int TRANSACTION_play = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 static final int TRANSACTION_pause = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
@@ -389,6 +463,8 @@ static final int TRANSACTION_registerListener = (android.os.IBinder.FIRST_CALL_T
 static final int TRANSACTION_removeListener = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
 static final int TRANSACTION_getCurPlayMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 10);
 static final int TRANSACTION_getCurPlayStatus = (android.os.IBinder.FIRST_CALL_TRANSACTION + 11);
+static final int TRANSACTION_addLocalList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 12);
+static final int TRANSACTION_deleteLocalList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 13);
 }
 public int play() throws android.os.RemoteException;
 public int pause() throws android.os.RemoteException;
@@ -402,4 +478,6 @@ public int registerListener(com.be02.aidl.IMusicListener listener) throws androi
 public int removeListener(com.be02.aidl.IMusicListener listener) throws android.os.RemoteException;
 public int getCurPlayMode() throws android.os.RemoteException;
 public int getCurPlayStatus() throws android.os.RemoteException;
+public int addLocalList(com.be02.aidl.MusicListItem item) throws android.os.RemoteException;
+public int deleteLocalList(com.be02.aidl.MusicListItem item) throws android.os.RemoteException;
 }

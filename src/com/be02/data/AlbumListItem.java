@@ -14,7 +14,7 @@ package com.be02.data;
  */
 public class AlbumListItem {
 	
-	public AlbumListItem(String artist, String ablum)
+	public AlbumListItem(String ablum, String artist)
 	{
 		mArtist = artist;
 		mAblum = ablum;

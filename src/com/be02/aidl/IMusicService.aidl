@@ -1,6 +1,7 @@
 package com.be02.aidl;
 
 import com.be02.aidl.MusicItem;
+import com.be02.aidl.MusicListItem;
 import com.be02.aidl.IMusicListener;
 
 interface IMusicService
@@ -17,4 +18,6 @@ interface IMusicService
 	int removeListener(IMusicListener listener);
 	int getCurPlayMode();
 	int getCurPlayStatus();
+	int addLocalList(out MusicListItem item);
+	int deleteLocalList(out MusicListItem item);
 }

@@ -198,7 +198,7 @@ public class LocalMusicFragment extends Fragment{
 			
 		}
 	};
-	private final String SUB_TAG = this.getClass().toString();
+	private final String SUB_TAG = "LocalMusicFragment ";
 	private View mView;
 	private ImageView mSongList, mArtistList, mAblumList, mScanList;
 	private ViewPager mViewPager;

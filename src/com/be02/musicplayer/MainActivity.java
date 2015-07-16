@@ -212,6 +212,7 @@ import android.widget.TextView;
 				break;
 			case R.id.main_layout_favorite:
 				try {
+					MusicLog.d(SUB_TAG + "favorite is clicked");
 					mConnection.getMusicProxy().setFavoriteStsChange();
 				} catch (RemoteException e1) {
 					e1.printStackTrace();
@@ -251,7 +252,7 @@ import android.widget.TextView;
 
 		@Override
 		public void onProgressChanged(SeekBar arg0, int position, boolean arg2) {
-			MusicLog.d(SUB_TAG + "position=" + position + ",arg2=" + arg2);
+			//MusicLog.d(SUB_TAG + "position=" + position + ",arg2=" + arg2);
 		}
 
 		@Override

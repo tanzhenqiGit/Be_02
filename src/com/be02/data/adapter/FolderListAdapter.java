@@ -10,7 +10,7 @@ package com.be02.data.adapter;
 
 import java.util.List;
 
-import com.be02.data.MusicListItem;
+import com.be02.aidl.MusicListItem;
 import com.be02.musicplayer.R;
 
 import android.content.Context;
@@ -103,6 +103,9 @@ public class FolderListAdapter extends BaseAdapter {
 	
 	public void setSelectPos(int pos)
 	{
+		if (pos == mList.size()) {
+			return;
+		}
 		mSelectPos = pos;
 		notifyDataSetChanged();
 	}
