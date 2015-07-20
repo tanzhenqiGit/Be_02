@@ -142,7 +142,7 @@ public final class R {
         public static final int zhengzai_n=0x7f020067;
     }
     public static final class id {
-        public static final int action_settings=0x7f09002b;
+        public static final int action_settings=0x7f09002c;
         public static final int common_artistlist_artist_txt=0x7f090018;
         public static final int common_list_artist_txt=0x7f090017;
         public static final int common_list_imge=0x7f090013;
@@ -163,6 +163,7 @@ public final class R {
         public static final int local_music_scan_img=0x7f090023;
         public static final int local_music_song_list_img=0x7f090020;
         public static final int local_music_view_pager=0x7f090024;
+        public static final int long_click_item_text=0x7f090027;
         public static final int main_album_name=0x7f090007;
         public static final int main_audio_cycle_mode=0x7f090012;
         public static final int main_audio_next=0x7f090011;
@@ -182,10 +183,10 @@ public final class R {
         public static final int main_song_name=0x7f090005;
         public static final int main_start_time_txt=0x7f09000a;
         public static final int main_total_time_txt=0x7f09000c;
-        public static final int music_contain=0x7f090028;
-        public static final int music_list_item_img=0x7f090029;
-        public static final int music_list_item_txt=0x7f09002a;
-        public static final int music_list_view=0x7f090027;
+        public static final int music_contain=0x7f090029;
+        public static final int music_list_item_img=0x7f09002a;
+        public static final int music_list_item_txt=0x7f09002b;
+        public static final int music_list_view=0x7f090028;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -194,19 +195,22 @@ public final class R {
         public static final int local_common_list_fragment=0x7f030003;
         public static final int local_music=0x7f030004;
         public static final int local_music_dialog=0x7f030005;
-        public static final int music_list_activity=0x7f030006;
-        public static final int music_list_item=0x7f030007;
+        public static final int long_click_list=0x7f030006;
+        public static final int music_list_activity=0x7f030007;
+        public static final int music_list_item=0x7f030008;
     }
     public static final class menu {
         public static final int main=0x7f080000;
     }
     public static final class string {
         public static final int action_settings=0x7f060001;
+        public static final int add_to_play_lsit=0x7f060015;
         public static final int app_name=0x7f060000;
-        public static final int cancel=0x7f060011;
+        public static final int cancel=0x7f060010;
+        public static final int current_list_exist=0x7f060014;
         public static final int default_image=0x7f060003;
         public static final int default_time=0x7f060004;
-        public static final int delete=0x7f060012;
+        public static final int delete=0x7f060011;
         public static final int favoriteListIsEmpty=0x7f06000d;
         public static final int favorite_music_list=0x7f060006;
         public static final int hello_world=0x7f060002;
@@ -214,13 +218,15 @@ public final class R {
         public static final int local_music_list_empty=0x7f06000a;
         public static final int local_music_list_loading=0x7f060009;
         public static final int network_music_list=0x7f060007;
-        public static final int newPlayList=0x7f06000e;
         public static final int new_music_list=0x7f060008;
         public static final int one=0x7f06000b;
-        public static final int play=0x7f060013;
-        public static final int playListName=0x7f06000f;
-        public static final int sure=0x7f060010;
+        public static final int play=0x7f060012;
+        public static final int playListName=0x7f06000e;
+        public static final int set_to_call_ring=0x7f060016;
+        public static final int song_detail_info=0x7f060017;
+        public static final int sure=0x7f06000f;
         public static final int unKnowArtist=0x7f06000c;
+        public static final int warn=0x7f060013;
     }
     public static final class style {
         /** 

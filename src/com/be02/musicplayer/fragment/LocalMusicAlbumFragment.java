@@ -134,6 +134,7 @@ public class LocalMusicAlbumFragment extends Fragment {
 
 	@Override
 	public void onDetach() {
+		unregisterForContextMenu(mListView);
 		mParent = null;
 		mServiceProxy = null;
 		super.onDetach();

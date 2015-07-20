@@ -26,11 +26,15 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
@@ -38,7 +42,7 @@ import android.widget.ListView;
  * @author lz100
  *
  */
-public class LocalMusicSongFragment extends Fragment{
+public class LocalMusicSongFragment extends Fragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,19 @@ public class LocalMusicSongFragment extends Fragment{
 		mView = inflater.inflate(R.layout.local_common_list_fragment, null);
 		initialize();
 		return mView;
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		
+		super.onCreateContextMenu(menu, v, menuInfo);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -100,6 +117,7 @@ public class LocalMusicSongFragment extends Fragment{
 		if (mListView != null) {
 			mListView.setAdapter(mAapter);
 			mListView.setOnItemClickListener(mItemClickListener);
+			mListView.setOnItemLongClickListener(mItemLongListener);
 		}
 		
 	}
@@ -146,6 +164,15 @@ public class LocalMusicSongFragment extends Fragment{
 			handleOnItemClicked(pos);
 		}
 		
+	};
+	
+	private OnItemLongClickListener mItemLongListener = new OnItemLongClickListener() {
+
+		@Override
+		public boolean onItemLongClick(AdapterView<?> arg0, View arg1,int arg2, long arg3) {
+			registerForContextMenu(mListView);
+			return false;
+		}
 	};
 	
 	private final String SUB_TAG = "LocalMusicSongFragment ";

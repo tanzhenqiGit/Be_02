@@ -14,7 +14,6 @@ import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.be02.aidl.IMusicListener;
 import com.be02.aidl.IMusicService;
 import com.be02.aidl.MusicItem;
@@ -56,9 +55,22 @@ public class MusicService extends Service {
 	@Override
 	protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
 		super.dump(fd, writer, args);
-		writer.println(MusicService.class.toString());
+		writer.println("******************" + MusicService.class.toString() + "******************");
+		printLocalList(writer);
+		
 	}
 
+	private void printLocalList(PrintWriter write)
+	{
+		if (mLocalList != null) {
+			write.println("local list size:" + mLocalList.size());
+			for (MusicListItem i : mLocalList) {
+				write.print("name:" + i.getmName());
+				write.println(", id:" + i.getImageId());
+			}
+		}
+		
+	}
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -355,7 +367,7 @@ public class MusicService extends Service {
 			} else {
 				status = MusicItem.FAVORITE;
 				mFavoriteList.add(item);
-				DBManager.getInstance(MusicApplication.getInstance()).insert(item, DBMusicSQLite.FAVORITE_LIST);
+				DBManager.getInstance(MusicApplication.getInstance()).insert(DBMusicSQLite.FAVORITE_LIST, item);
 			}
 			MusicLog.d(SUB_TAG + "status = " + status);
 			updateFavoriteStatus(status);
@@ -368,9 +380,10 @@ public class MusicService extends Service {
 				return ErrorCode.NullPointError;
 			}
 			if (!mLocalList.contains(item)) {
+				MusicLog.d(SUB_TAG + "not contain item add to list and Database");
 				DBManager.getInstance(MusicApplication.getInstance()).LocalListInsert(item);
-				updateLocalList();
 				mLocalList.add(item);
+				updateLocalList();
 			}
 			return ErrorCode.NoError;
 		}
@@ -409,6 +422,7 @@ public class MusicService extends Service {
 		mCurMusicList = DBManager.getInstance(MusicApplication.getInstance()).getMusicList();
 		mFavoriteList = DBManager.getInstance(MusicApplication.getInstance()).getFavoriteList();
 		mLocalList = DBManager.getInstance(MusicApplication.getInstance()).getLocalList();
+		MusicLog.d(SUB_TAG + "initialize ** mLocalList.size:" + mLocalList.size());
 		mCurPlayerIndex = 0;
 	}
 	
@@ -464,8 +478,35 @@ public class MusicService extends Service {
 				
 				@Override
 				public void onAudioFocusChange(int status) {
-					MusicLog.d(SUB_TAG + "OnAudioFocusChangeListener onAudioFocusChange status =" 
-				+ status);
+					MusicLog.d(SUB_TAG + "OnAudioFocusChangeListener onAudioFocusChange status =" + status);
+					switch (status) {
+					case AudioManager.AUDIOFOCUS_GAIN:
+						MusicLog.d(SUB_TAG + "AudioFocus gain");
+						break;
+					case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
+						MusicLog.d(SUB_TAG + "AudioFocus gain transient");
+						break;
+					case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE:
+						MusicLog.d(SUB_TAG + "AudioFocus gain exclusive");
+						break;
+					case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
+						MusicLog.d(SUB_TAG + "Audiofocus gian transient may duck");
+						break;
+					case AudioManager.AUDIOFOCUS_LOSS:
+						MusicLog.d(SUB_TAG + "AudioFocus Loss");
+						stopSelf();
+						break;
+					case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+						MusicLog.d(SUB_TAG + "AudioFocus loss transient");
+						break;
+					case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+						MusicLog.d(SUB_TAG + "AudioFocus loss transient can duck");
+						break;
+					case AudioManager.AUDIOFOCUS_NONE:
+						MusicLog.d(SUB_TAG + "CtsAudioFocus AudioFucos none");
+						break;
+					default:break;
+					}
 					
 				}
 	};

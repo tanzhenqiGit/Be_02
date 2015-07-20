@@ -21,6 +21,7 @@ import com.be02.data.db.DBManager;
 import com.be02.musicplayer.fragment.FavoriteMusicFragment;
 import com.be02.musicplayer.fragment.LocalMusicFragment;
 import com.be02.musicplayer.fragment.NetMusicFragment;
+import com.be02.musicplayer.fragment.UserMusicFragment;
 import com.be02.service.MusicServiceConnection;
 
 import android.annotation.SuppressLint;
@@ -61,6 +62,12 @@ public class MusicListActivity extends FragmentActivity {
 	@Override
 	protected void onActivityResult(int arg0, int arg1, Intent arg2) {
 		super.onActivityResult(arg0, arg1, arg2);
+	}
+
+	@Override
+	public void onAttachFragment(Fragment fragment) {
+		MusicLog.d(SUB_TAG + "onAttachFragment");
+		super.onAttachFragment(fragment);
 	}
 
 	@Override
@@ -180,6 +187,7 @@ public class MusicListActivity extends FragmentActivity {
 			mList.add(item3);
 		}
 		mLocalList = DBManager.getInstance(MusicApplication.getInstance()).getLocalList();
+		MusicLog.d(SUB_TAG + "updateLocalList size:" + mLocalList.size());
 		if (mLocalList != null) {
 			for (MusicListItem i : mLocalList) {
 				if (!mList.contains(i)) {
@@ -237,21 +245,30 @@ public class MusicListActivity extends FragmentActivity {
     {
     	final View view = LayoutInflater.from(this).inflate(R.layout.local_music_dialog, null);
     	new AlertDialog.Builder(this)
-    		.setTitle("新建列表")
+    		.setTitle(getString(R.string.new_music_list))
     		.setView(view)
-    		.setPositiveButton("确定", new OnClickListener() {
+    		.setPositiveButton(getString(R.string.sure), new OnClickListener() {
     			EditText et = (EditText) view.findViewById(R.id.local_music_dialog_et);
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
 					try {
-						mConnection.getMusicProxy()
-							.addLocalList(new MusicListItem(et.getText().toString()));
+						MusicListItem item = new MusicListItem(et.getText().toString());
+						if (!mList.contains(item)) {
+							MusicLog.d(SUB_TAG + "add local list item = " +  item.getmName());
+							mConnection.getMusicProxy().addLocalList(item);
+						} else {
+							new AlertDialog.Builder(MusicListActivity.this).setTitle(getString(R.string.warn))
+							.setMessage(getString(R.string.current_list_exist))
+							.setPositiveButton(getString(R.string.sure), null)
+							.create()
+							.show();
+						}
 					} catch (RemoteException e) {
 						e.printStackTrace();
 					}
 				}
 			})
-    		.setNegativeButton("取消",  new OnClickListener(){
+    		.setNegativeButton(getString(R.string.cancel),  new OnClickListener(){
 
 				@Override
 				public void onClick(DialogInterface dialog, int arg1) {
@@ -265,7 +282,10 @@ public class MusicListActivity extends FragmentActivity {
     
     private void OnUserLocalClicked(int pos)
     {
-    	
+    	MusicListItem item = mList.get(pos);
+    	UserMusicFragment user = new UserMusicFragment();
+    	user.setListName(item.getmName());
+    	replaceFragment(user);
     }
     
     private OnItemClickListener mItemClickListener = new OnItemClickListener() {
@@ -306,9 +326,9 @@ public class MusicListActivity extends FragmentActivity {
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
 			case MusicListener.MSG_LOCAL_LIST_UPDATE:
-				MusicLog.d(SUB_TAG + "local list update size=" + mList.size());
 				if (mAdapter != null) {
 					updateLocalList();
+					MusicLog.d(SUB_TAG + "local list update size=" + mList.size());
 					mAdapter.notifyDataSetChanged();
 				}
 				break;
@@ -321,8 +341,14 @@ public class MusicListActivity extends FragmentActivity {
 		@Override
 		public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long id) {
 			if (position > NET_MUSIC_LIST && position != mList.size()) {
+				MusicLog.d(SUB_TAG + "OnItemLongClickListener onItemLongClick ");
 				registerForContextMenu(mListView);
 				mCurLongPressPos = position;
+			} 
+			else {
+				MusicLog.d(SUB_TAG + "OnItemLongClickListener ------------ onItemLongClick ");
+				unregisterForContextMenu(mListView);
+				mCurLongPressPos = -1;
 			}
 			return false;
 		}

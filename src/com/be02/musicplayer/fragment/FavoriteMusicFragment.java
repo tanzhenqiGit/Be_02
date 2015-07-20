@@ -1,4 +1,5 @@
 /**
+
  * @author tan_zhenq E-mail: tan_zhenqi@163.com
  * @date 创建时间：2015-7-6 下午7:48:57 
  * @version 1.0 
@@ -38,7 +39,7 @@ import android.widget.TextView;
  * @author lz100
  *
  */
-public class FavoriteMusicFragment extends Fragment{
+public class FavoriteMusicFragment extends Fragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

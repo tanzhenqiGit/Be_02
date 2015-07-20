@@ -39,14 +39,20 @@ public final class DBManager {
 		return mDBMgr;
 	}
 	
-	
+	/**
+	 * get music play list
+	 * @return
+	 */
 	public List<MusicItem> getMusicList()
 	{
 		synchronized (mMusicList) {
 			return mMusicList;
 		}
 	}
-	
+	/**
+	 * get music artist list
+	 * @return
+	 */
 	public List<String> getArtistList()
 	{
 		synchronized(mArtistList) {
@@ -54,6 +60,10 @@ public final class DBManager {
 		}
 	}
 	
+	/**
+	 * get album list
+	 * @return
+	 */
 	public List<AlbumListItem> getAlbumList()
 	{
 		synchronized (mAlbumList) {
@@ -78,7 +88,7 @@ public final class DBManager {
 		updateList();
 	}
 
-	public void updateList()
+	private void updateList()
 	{
 		new Thread(new Runnable() {
 			public void run() {
@@ -206,7 +216,7 @@ public final class DBManager {
 		}
 	}
 	
-	public void insert(MusicItem item, String listName)
+	public void insert( String listName,MusicItem item)
 	{
 		SQLiteDatabase db = mHelper.getWritableDatabase();
 		if (isMusicItemExist(db, item)) {
@@ -283,14 +293,52 @@ public final class DBManager {
 		return cursor;
 	}
 	
-	public void updateFavoriteList()
+	private void updateFavoriteList()
 	{
 		mFavoriteList = converToList(query(DBMusicSQLite.FAVORITE_LIST));
 	}
-	
-	public void updateLocalList()
+	/**
+	 * used for user list name get music list in current list.
+	 * @param name
+	 * @return
+	 */
+	public List<MusicItem> getCommonListByName(String name)
 	{
+		List<MusicItem> list = converToList(query(name));
+		if (list == null) {
+			MusicLog.d(SUB_TAG + "getCommonListByName :" + name + ",list is null");
+		}
+		if (list.size() == 0) {
+			MusicLog.d(SUB_TAG + "getCommonListByName :" + name + ",list size is 0");
+		}
+		return list;
+		
+	}
+	
+	/**
+	 * delete music item user list name and item infor.
+	 * @param list
+	 * @param item
+	 */
+	public void deleteCommonListItem(String list, MusicItem item)
+	{
+		delete(list, item);
+	}
+	
+	public void insertCommonListItem(String list, MusicItem item)
+	{
+		insert(list, item);
+	}
+	
+	private void updateLocalList()
+	{
+	
 		mLocalList = convertToLocalList(LocalListQuery());
+		if (mLocalList != null) {
+			MusicLog.d(SUB_TAG + "updateLocalList size" + mLocalList.size());
+		} else {
+			MusicLog.d(SUB_TAG + "updateLocalList mLocalList is null");
+		}
 	}
 	private List<MusicItem> converToList(Cursor cursor)
 	{
@@ -419,10 +467,10 @@ public final class DBManager {
 		return false;
 	}
 	
-	public void LocalListDelete(MusicListItem item) 
+	public int LocalListDelete(MusicListItem item) 
 	{
 		SQLiteDatabase db = mHelper.getWritableDatabase();
-		db.delete(DBMusicSQLite.TABLE_NAME_LOCAL_LIST,
+		return db.delete(DBMusicSQLite.TABLE_NAME_LOCAL_LIST,
 				DBMusicSQLite.LIST_NAME + " = ? ",
 				new String[]{item.getmName()});
 	}
@@ -443,6 +491,7 @@ public final class DBManager {
 	{
 		List<MusicListItem> list = new ArrayList<MusicListItem>();
 		if (cursor == null || cursor.getCount() == 0) {
+			MusicLog.d(SUB_TAG + "cursor size is 0");
 			return list;
 		}
 		cursor.moveToFirst();
